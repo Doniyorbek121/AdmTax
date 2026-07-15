@@ -2,15 +2,17 @@ import { useAuth } from '../store/auth';
 import { useRide } from '../store/ride';
 import { Map } from '../components/Map';
 import { formatSom } from '../lib/format';
+import { useNearbyCars } from '../lib/useNearbyCars';
 
 export function Home() {
   const { user } = useAuth();
   const { pickup, setScreen, useCurrentLocation, locating } = useRide();
+  const cars = useNearbyCars(pickup.point);
 
   return (
     <div className="phone bg-ink-100">
       <div className="absolute inset-0">
-        <Map pickup={pickup.point} />
+        <Map pickup={pickup.point} cars={cars} />
       </div>
 
       {/* Yuqori bar */}
@@ -29,8 +31,15 @@ export function Home() {
       {/* Pastki varaq */}
       <div className="relative z-10 mt-auto sheet">
         <div className="bg-white rounded-t-3xl shadow-2xl p-5 pb-8">
-          <div className="w-10 h-1.5 bg-ink-200 rounded-full mx-auto mb-5" />
-          <h2 className="text-xl font-bold text-ink-900 mb-4">Qayerga boramiz?</h2>
+          <div className="w-10 h-1.5 bg-ink-200 rounded-full mx-auto mb-4" />
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-ink-900">Qayerga boramiz?</h2>
+            {cars.length > 0 && (
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {cars.length} mashina yaqinda
+              </span>
+            )}
+          </div>
 
           {/* Olib ketish nuqtasi */}
           <button

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { haversineMeters } from '@adm/shared';
 import { useRide } from '../store/ride';
 import { api } from '../api/client';
 import { Map } from '../components/Map';
@@ -15,6 +16,14 @@ export function Active() {
   const isDone = ['COMPLETED', 'CANCELLED', 'NO_DRIVERS'].includes(ride.status);
   const canCancel = ['SEARCHING', 'ACCEPTED', 'ARRIVING', 'ARRIVED'].includes(ride.status);
 
+  // Haydovchi yetib kelishiga ETA (haydovchi → pickup)
+  const driverLoc = driverLocation ?? d?.location ?? null;
+  let etaMin: number | null = null;
+  if (driverLoc && ['ACCEPTED', 'ARRIVING'].includes(ride.status)) {
+    const distM = haversineMeters(driverLoc, ride.pickup.point) * 1.3;
+    etaMin = Math.max(1, Math.round(distM / 1000 / 24 * 60));
+  }
+
   const submitRating = async (score: number) => {
     setRating(score);
     try { await api.post(`/rides/${ride.id}/rate`, { score }); setRated(true); } catch { /* ignore */ }
@@ -23,7 +32,7 @@ export function Active() {
   return (
     <div className="phone bg-ink-100">
       <div className="absolute inset-0">
-        <Map pickup={ride.pickup.point} dropoff={ride.dropoff.point} driver={driverLocation ?? d?.location} route={ride.routePolyline} />
+        <Map pickup={ride.pickup.point} dropoff={ride.dropoff.point} driver={driverLoc} driverHeading={d?.headingDeg} route={ride.routePolyline} />
       </div>
 
       <div className="relative z-10 mt-auto sheet">
@@ -31,9 +40,14 @@ export function Active() {
           <div className="w-10 h-1.5 bg-ink-200 rounded-full mx-auto mb-4" />
 
           {/* Holat */}
-          <div className="flex items-center gap-3 mb-4">
-            {isSearching && <span className="w-3 h-3 rounded-full bg-brand-500 relative"><span className="absolute inset-0 rounded-full bg-brand-500 animate-ping" /></span>}
-            <h2 className="text-lg font-bold text-ink-900">{RIDE_STATUS_LABEL[ride.status]}</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              {isSearching && <span className="w-3 h-3 rounded-full bg-brand-500 relative"><span className="absolute inset-0 rounded-full bg-brand-500 animate-ping" /></span>}
+              <h2 className="text-lg font-bold text-ink-900">{RIDE_STATUS_LABEL[ride.status]}</h2>
+            </div>
+            {etaMin != null && (
+              <span className="text-sm font-bold text-brand-600 bg-brand-50 px-3 py-1 rounded-full">~{etaMin} daq</span>
+            )}
           </div>
 
           {isSearching && (

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { PaymentMethod, VehicleClass } from '@adm/shared';
 import { useRide } from '../store/ride';
 import { Map } from '../components/Map';
+import { useNearbyCars } from '../lib/useNearbyCars';
 import { formatDistance, formatDuration, formatSom, VEHICLE_CLASS_DESC, VEHICLE_CLASS_LABEL } from '../lib/format';
 
 const CLASS_ICON: Record<string, string> = {
@@ -20,6 +21,8 @@ export function Choose() {
   } = useRide();
   const [err, setErr] = useState('');
 
+  const cars = useNearbyCars(pickup.point);
+
   useEffect(() => { void fetchEstimates(); }, []);
 
   const confirm = async () => {
@@ -30,7 +33,7 @@ export function Choose() {
 
   return (
     <div className="phone bg-ink-100">
-      <div className="absolute inset-0"><Map pickup={pickup.point} dropoff={dropoff?.point} route={estimates[0]?.polyline} /></div>
+      <div className="absolute inset-0"><Map pickup={pickup.point} dropoff={dropoff?.point} route={estimates[0]?.polyline} cars={cars} /></div>
 
       <div className="relative z-10 p-4">
         <button onClick={() => setScreen('search')} className="w-11 h-11 rounded-full bg-white shadow-lg grid place-items-center text-xl">←</button>

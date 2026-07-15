@@ -29,6 +29,7 @@ export function toUser(u: PrismaUser): User {
     role: u.role as UserRole,
     avatarUrl: u.avatarUrl,
     rating: Number(u.rating.toFixed(2)),
+    walletBalance: u.walletBalance,
     createdAt: u.createdAt.toISOString(),
   };
 }

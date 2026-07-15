@@ -7,7 +7,7 @@ import { TASHKENT_PLACES } from '../lib/places';
 import { getCurrentLocation } from '../lib/geolocation';
 import { reverseGeocode } from '../lib/geocode';
 
-type Screen = 'home' | 'search' | 'choose' | 'active';
+type Screen = 'home' | 'search' | 'choose' | 'active' | 'wallet';
 
 interface RideState {
   screen: Screen;

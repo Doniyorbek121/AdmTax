@@ -18,6 +18,7 @@ export interface User {
   role: UserRole;
   avatarUrl: string | null;
   rating: number;
+  walletBalance: number;
   createdAt: string;
 }
 

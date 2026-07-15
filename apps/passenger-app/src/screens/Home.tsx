@@ -1,6 +1,7 @@
 import { useAuth } from '../store/auth';
 import { useRide } from '../store/ride';
 import { Map } from '../components/Map';
+import { formatSom } from '../lib/format';
 
 export function Home() {
   const { user } = useAuth();
@@ -14,12 +15,15 @@ export function Home() {
 
       {/* Yuqori bar */}
       <div className="relative z-10 p-4 flex items-center gap-3">
-        <div className="w-11 h-11 rounded-full bg-white shadow-lg grid place-items-center text-brand-600 font-bold">
+        <button onClick={() => setScreen('wallet')} className="w-11 h-11 rounded-full bg-white shadow-lg grid place-items-center text-brand-600 font-bold">
           {user?.name?.[0] ?? '👤'}
-        </div>
+        </button>
         <div className="bg-white rounded-full shadow-lg px-4 py-2 text-sm font-medium text-ink-700">
           Salom, {user?.name ?? 'mehmon'} 👋
         </div>
+        <button onClick={() => setScreen('wallet')} className="ml-auto bg-white rounded-full shadow-lg px-4 py-2 text-sm font-bold text-ink-900 flex items-center gap-1.5">
+          💳 {formatSom(user?.walletBalance ?? 0)}
+        </button>
       </div>
 
       {/* Pastki varaq */}

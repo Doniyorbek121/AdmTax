@@ -9,6 +9,7 @@ import { Home } from './screens/Home';
 import { Search } from './screens/Search';
 import { Choose } from './screens/Choose';
 import { Active } from './screens/Active';
+import { Wallet } from './screens/Wallet';
 
 function App() {
   const { user, ready, loadMe } = useAuth();
@@ -28,6 +29,7 @@ function App() {
     case 'search': return <Search />;
     case 'choose': return <Choose />;
     case 'active': return <Active />;
+    case 'wallet': return <Wallet />;
     default: return <Home />;
   }
 }

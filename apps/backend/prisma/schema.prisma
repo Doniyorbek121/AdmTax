@@ -75,9 +75,12 @@ model User {
   avatarUrl String?
   rating    Float    @default(5.0)
   ratingCount Int    @default(0)
+  walletBalance Int   @default(0)
   isBlocked Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  transactions  Transaction[]
 
   driverProfile   DriverProfile?
   ridesAsPassenger Ride[]         @relation("PassengerRides")
@@ -211,6 +214,34 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+enum PaymentProvider {
+  PAYME
+  CLICK
+  WALLET
+}
+
+// Payme tranzaksiya holatlari: 1=yaratildi, 2=to'landi, -1/-2=bekor
+model Transaction {
+  id              String          @id @default(cuid())
+  provider        PaymentProvider
+  // Provayder tomonidagi tranzaksiya id (Payme/Click)
+  providerTransId String?         @unique
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Nima uchun: hamyonni to'ldirish yoki safar to'lovi
+  rideId          String?
+  amount          Int             // tiyin (1 so'm = 100 tiyin) — Payme standarti
+  state           Int             @default(1)
+  reason          Int?
+  createTime      BigInt?
+  performTime     BigInt?
+  cancelTime      BigInt?
+  createdAt       DateTime        @default(now())
+
+  @@index([userId])
+  @@index([state])
 }
 
 // Tarif jadvali — admin tomonidan boshqariladi

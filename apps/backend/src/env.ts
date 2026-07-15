@@ -31,4 +31,18 @@ export const env = {
   nominatimUrl: process.env.NOMINATIM_URL ?? 'https://nominatim.openstreetmap.org',
   yandexApiKey: process.env.YANDEX_API_KEY ?? '',
   geoCountry: process.env.GEO_COUNTRY ?? 'uz',
+
+  // To'lov provayderlari
+  payme: {
+    merchantId: process.env.PAYME_MERCHANT_ID ?? '',
+    // Payme kassa kaliti (test yoki ishlab chiqarish)
+    key: process.env.PAYME_KEY ?? 'test_payme_key',
+    checkoutUrl: process.env.PAYME_CHECKOUT_URL ?? 'https://checkout.paycom.uz',
+  },
+  click: {
+    serviceId: process.env.CLICK_SERVICE_ID ?? '',
+    merchantId: process.env.CLICK_MERCHANT_ID ?? '',
+    secretKey: process.env.CLICK_SECRET_KEY ?? 'test_click_secret',
+    merchantUserId: process.env.CLICK_MERCHANT_USER_ID ?? '',
+  },
 };

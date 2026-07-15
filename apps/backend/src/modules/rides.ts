@@ -297,6 +297,23 @@ ridesRouter.post(
       surgeMultiplier: ride.surgeMultiplier,
     });
 
+    // To'lov holatini aniqlash. WALLET bo'lsa — hamyondan yechish.
+    let paymentStatus: 'PAID' | 'PENDING' | 'FAILED' = 'PENDING';
+    if (ride.paymentMethod === PaymentMethod.CASH) {
+      paymentStatus = 'PAID';
+    } else if (ride.paymentMethod === PaymentMethod.WALLET && ride.passengerId) {
+      const payer = await prisma.user.findUnique({ where: { id: ride.passengerId }, select: { walletBalance: true } });
+      if ((payer?.walletBalance ?? 0) >= breakdown.total) {
+        await prisma.user.update({
+          where: { id: ride.passengerId },
+          data: { walletBalance: { decrement: breakdown.total } },
+        });
+        paymentStatus = 'PAID';
+      } else {
+        paymentStatus = 'FAILED'; // mablag' yetarli emas — naqd yig'iladi
+      }
+    }
+
     const updated = await prisma.ride.update({
       where: { id: ride.id },
       data: {
@@ -304,7 +321,7 @@ ridesRouter.post(
         finalFare: breakdown.total,
         fareBreakdown: breakdown as unknown as object,
         completedAt: new Date(),
-        paymentStatus: ride.paymentMethod === PaymentMethod.CASH ? 'PAID' : 'PENDING',
+        paymentStatus,
       },
       include: rideInclude,
     });

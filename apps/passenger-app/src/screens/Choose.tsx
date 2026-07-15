@@ -9,7 +9,8 @@ const CLASS_ICON: Record<string, string> = {
 };
 const PAYMENTS: { id: PaymentMethod; label: string; icon: string }[] = [
   { id: 'CASH' as PaymentMethod, label: 'Naqd', icon: '💵' },
-  { id: 'CARD' as PaymentMethod, label: 'Karta', icon: '💳' },
+  { id: 'WALLET' as PaymentMethod, label: 'Hamyon', icon: '💳' },
+  { id: 'CARD' as PaymentMethod, label: 'Karta', icon: '🏦' },
 ];
 
 export function Choose() {

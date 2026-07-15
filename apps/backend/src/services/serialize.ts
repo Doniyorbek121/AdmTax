@@ -85,6 +85,7 @@ export function toRide(r: RideWithRelations): Ride {
     pickup: { address: r.pickupAddress, point: { lat: r.pickupLat, lng: r.pickupLng } },
     dropoff: { address: r.dropoffAddress, point: { lat: r.dropoffLat, lng: r.dropoffLng } },
     stops: (r.stops as unknown as Place[]) ?? [],
+    routePolyline: (r.routePolyline as unknown as { lat: number; lng: number }[]) ?? null,
     estimatedFare: r.estimatedFare,
     finalFare: r.finalFare,
     fareBreakdown: (r.fareBreakdown as unknown as FareBreakdown) ?? null,

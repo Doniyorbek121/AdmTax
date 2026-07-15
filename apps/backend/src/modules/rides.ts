@@ -49,7 +49,7 @@ ridesRouter.post(
   asyncHandler(async (req, res) => {
     const { pickup, dropoff, stops, vehicleClass } = req.body as z.infer<typeof estimateSchema>;
     const points = [pickup, ...(stops ?? []), dropoff];
-    const route = estimateRoute(points);
+    const route = await estimateRoute(points);
     const tariff = await getTariff(vehicleClass);
     const surge = currentSurge();
     const breakdown = calculateFare(tariff, {
@@ -73,7 +73,7 @@ ridesRouter.post(
   validate(estimateSchema.omit({ vehicleClass: true })),
   asyncHandler(async (req, res) => {
     const { pickup, dropoff, stops } = req.body as { pickup: any; dropoff: any; stops?: any[] };
-    const route = estimateRoute([pickup, ...(stops ?? []), dropoff]);
+    const route = await estimateRoute([pickup, ...(stops ?? []), dropoff]);
     const surge = currentSurge();
     const classes = Object.values(VehicleClass);
     const results = await Promise.all(
@@ -84,6 +84,7 @@ ridesRouter.post(
           distanceMeters: route.distanceMeters,
           durationSeconds: route.durationSeconds,
           surgeMultiplier: surge,
+          polyline: route.polyline,
           breakdown: calculateFare(tariff, {
             distanceMeters: route.distanceMeters,
             durationSeconds: route.durationSeconds,
@@ -133,7 +134,7 @@ ridesRouter.post(
     }
 
     const points = [body.pickup.point, ...(body.stops ?? []).map((s) => s.point), body.dropoff.point];
-    const route = estimateRoute(points);
+    const route = await estimateRoute(points);
     const tariff = await getTariff(body.vehicleClass);
     const surge = currentSurge();
     const breakdown = calculateFare(tariff, {
@@ -156,6 +157,7 @@ ridesRouter.post(
         dropoffLat: body.dropoff.point.lat,
         dropoffLng: body.dropoff.point.lng,
         stops: body.stops ?? [],
+        routePolyline: route.polyline as unknown as object,
         estimatedFare: breakdown.total,
         fareBreakdown: breakdown as unknown as object,
         surgeMultiplier: surge,

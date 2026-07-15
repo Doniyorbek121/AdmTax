@@ -29,7 +29,7 @@ export function Choose() {
 
   return (
     <div className="phone bg-ink-100">
-      <div className="absolute inset-0"><Map pickup={pickup.point} dropoff={dropoff?.point} /></div>
+      <div className="absolute inset-0"><Map pickup={pickup.point} dropoff={dropoff?.point} route={estimates[0]?.polyline} /></div>
 
       <div className="relative z-10 p-4">
         <button onClick={() => setScreen('search')} className="w-11 h-11 rounded-full bg-white shadow-lg grid place-items-center text-xl">←</button>

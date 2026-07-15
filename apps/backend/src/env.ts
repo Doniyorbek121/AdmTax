@@ -25,4 +25,10 @@ export const env = {
     .map((s) => s.trim())
     .filter(Boolean),
   smsProvider: process.env.SMS_PROVIDER ?? 'console',
+
+  // Xarita / marshrut / geokoder
+  osrmUrl: process.env.OSRM_URL ?? 'https://router.project-osrm.org',
+  nominatimUrl: process.env.NOMINATIM_URL ?? 'https://nominatim.openstreetmap.org',
+  yandexApiKey: process.env.YANDEX_API_KEY ?? '',
+  geoCountry: process.env.GEO_COUNTRY ?? 'uz',
 };

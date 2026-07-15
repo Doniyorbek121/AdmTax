@@ -60,6 +60,8 @@ export interface Ride {
   dropoff: Place;
   /** Oraliq to'xtash nuqtalari */
   stops: Place[];
+  /** Marshrut geometriyasi (xaritada chizish uchun) */
+  routePolyline: LatLng[] | null;
   estimatedFare: number;
   finalFare: number | null;
   fareBreakdown: FareBreakdown | null;
@@ -112,6 +114,8 @@ export interface FareEstimateResult {
   durationSeconds: number;
   breakdown: FareBreakdown;
   surgeMultiplier: number;
+  /** Marshrut geometriyasi (barcha sinflar uchun bir xil) */
+  polyline?: LatLng[];
 }
 
 export interface CreateRideDto {

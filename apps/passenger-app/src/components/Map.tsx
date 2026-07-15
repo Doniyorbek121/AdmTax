@@ -36,12 +36,15 @@ export function Map({
   pickup,
   dropoff,
   driver,
+  route,
 }: {
   pickup?: LatLng | null;
   dropoff?: LatLng | null;
   driver?: LatLng | null;
+  route?: LatLng[] | null;
 }) {
   const pts = [pickup, dropoff, driver].filter(Boolean) as LatLng[];
+  const line = route && route.length > 1 ? route : pickup && dropoff ? [pickup, dropoff] : null;
   return (
     <MapContainer
       center={[TASHKENT_CENTER.lat, TASHKENT_CENTER.lng]}
@@ -53,10 +56,13 @@ export function Map({
       {pickup && <Marker position={[pickup.lat, pickup.lng]} icon={pin('#10b981', 'A')} />}
       {dropoff && <Marker position={[dropoff.lat, dropoff.lng]} icon={pin('#ef4444', 'B')} />}
       {driver && <Marker position={[driver.lat, driver.lng]} icon={carIcon} />}
-      {pickup && dropoff && (
-        <Polyline positions={[[pickup.lat, pickup.lng], [dropoff.lat, dropoff.lng]]} pathOptions={{ color: '#171b26', weight: 4, dashArray: '1 10', lineCap: 'round' }} />
+      {line && (
+        <Polyline
+          positions={line.map((p) => [p.lat, p.lng]) as [number, number][]}
+          pathOptions={{ color: '#171b26', weight: 5, lineCap: 'round', lineJoin: 'round' }}
+        />
       )}
-      <Fit points={pts.length ? pts : [TASHKENT_CENTER]} />
+      <Fit points={(route && route.length > 1 ? route : pts).length ? (route && route.length > 1 ? route : pts) : [TASHKENT_CENTER]} />
     </MapContainer>
   );
 }

@@ -23,7 +23,7 @@ export function Active() {
   return (
     <div className="phone bg-ink-100">
       <div className="absolute inset-0">
-        <Map pickup={ride.pickup.point} dropoff={ride.dropoff.point} driver={driverLocation ?? d?.location} />
+        <Map pickup={ride.pickup.point} dropoff={ride.dropoff.point} driver={driverLocation ?? d?.location} route={ride.routePolyline} />
       </div>
 
       <div className="relative z-10 mt-auto sheet">

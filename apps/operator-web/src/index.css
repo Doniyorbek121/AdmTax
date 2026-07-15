@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Brand — ADM Taksi (amber accent + graphite) */
+  --color-brand-50: #fff9eb;
+  --color-brand-100: #ffefc6;
+  --color-brand-200: #ffdd88;
+  --color-brand-300: #ffc94a;
+  --color-brand-400: #ffb420;
+  --color-brand-500: #f99307;
+  --color-brand-600: #dd6e02;
+  --color-brand-700: #b74d06;
+  --color-brand-800: #943c0c;
+  --color-brand-900: #7a320d;
+
+  --color-ink-50: #f6f7f9;
+  --color-ink-100: #eceef2;
+  --color-ink-200: #d5d9e2;
+  --color-ink-300: #b0b8c9;
+  --color-ink-400: #8591a9;
+  --color-ink-500: #667085;
+  --color-ink-600: #525d75;
+  --color-ink-700: #434b5f;
+  --color-ink-800: #2b3141;
+  --color-ink-900: #171b26;
+  --color-ink-950: #0e111a;
+
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --radius-xl: 1rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: #f4f5f7;
+  color: #171b26;
+}
+
+/* Nozik scrollbar */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: #cdd2dd; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #b0b8c9; }
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.7); opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: pulse-ring 1.8s ease-out infinite;
+}

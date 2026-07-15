@@ -8,6 +8,7 @@ import { authenticate } from '../middleware/auth';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../lib/jwt';
 import { BadRequest, Unauthorized } from '../lib/errors';
 import { toUser } from '../services/serialize';
+import { isConsoleProvider, sendSms } from '../services/sms';
 
 export const authRouter = Router();
 
@@ -56,11 +57,17 @@ authRouter.post(
       data: { phone, code, expiresAt: new Date(Date.now() + 5 * 60 * 1000) },
     });
 
-    // Dev'da kodni konsolga chiqaramiz. Prod'da SMS provider ulanadi.
-    // eslint-disable-next-line no-console
-    console.log(`📲 OTP for ${phone}: ${code}`);
+    // Tanlangan provayder orqali SMS yuborish (eskiz / playmobile / console)
+    const text = `ADM Taksi. Tasdiqlash kodi: ${code}. Hech kimga bermang.`;
+    try {
+      await sendSms(phone, text);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('SMS yuborishda xato:', e);
+    }
 
-    res.json({ ok: true, ...(process.env.NODE_ENV !== 'production' ? { devCode: code } : {}) });
+    // Faqat console rejimida (dev) kodni javobda qaytaramiz
+    res.json({ ok: true, ...(isConsoleProvider() ? { devCode: code } : {}) });
   }),
 );
 

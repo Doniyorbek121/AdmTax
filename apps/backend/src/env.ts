@@ -25,6 +25,18 @@ export const env = {
     .map((s) => s.trim())
     .filter(Boolean),
   smsProvider: process.env.SMS_PROVIDER ?? 'console',
+  eskiz: {
+    email: process.env.ESKIZ_EMAIL ?? '',
+    password: process.env.ESKIZ_PASSWORD ?? '',
+    from: process.env.ESKIZ_FROM ?? '4546',
+    baseUrl: process.env.ESKIZ_BASE_URL ?? 'https://notify.eskiz.uz/api',
+  },
+  playmobile: {
+    login: process.env.PLAYMOBILE_LOGIN ?? '',
+    password: process.env.PLAYMOBILE_PASSWORD ?? '',
+    from: process.env.PLAYMOBILE_FROM ?? '3700',
+    baseUrl: process.env.PLAYMOBILE_BASE_URL ?? 'https://send.smsxabar.uz/broker-api',
+  },
 
   // Xarita / marshrut / geokoder
   osrmUrl: process.env.OSRM_URL ?? 'https://router.project-osrm.org',

@@ -11,8 +11,22 @@ Bitta monorepoda **5 ta ilova** va umumiy backend:
 | **Admin web** | Boshqaruv | React + Vite + Tailwind | 5173 | ✅ |
 | **Operator web** | Dispecher / call-markaz | React + Vite + Tailwind | 5174 | ✅ |
 
-> Mobil ilovalar mobil-birinchi PWA sifatida qurilgan — telefonda brauzer orqali
-> to'liq ishlaydi. Keyingi qadam: Capacitor bilan native Android/iOS ilovaga o'rash.
+> Mobil ilovalar **Capacitor** bilan native Android/iOS ilovaga o'raladi
+> (`docs/NATIVE.md`) — ham web PWA, ham native bitta koddan.
+
+## Imkoniyatlar
+
+| Modul | Tavsif | Hujjat |
+|-------|--------|--------|
+| 🚕 Buyurtma | To'liq hayot sikli, real-time matching, 5 tarif, surge | — |
+| 🗺 Xarita/marshrut | OSRM real marshrut (polyline) + Nominatim/Yandex geokoder | — |
+| 📍 Geolokatsiya | Native GPS (Capacitor), reverse geocode | `docs/NATIVE.md` |
+| 💳 To'lov | Payme + Click + hamyon (wallet) | `docs/PAYMENTS.md` |
+| 🧑‍✈️ Haydovchi onboarding | Ro'yxatdan o'tish, hujjat yuklash, moderatsiya | — |
+| 📲 SMS/OTP | Eskiz.uz / Play Mobile / console | `docs/SMS.md` |
+| 📱 Native | Android/iOS (Capacitor) | `docs/NATIVE.md` |
+| 📊 Admin | Statistika, park, buyurtmalar, tariflar, moderatsiya | — |
+| ☎️ Operator | Qo'ng'iroq orqali buyurtma, jonli monitoring | — |
 
 ## Arxitektura
 

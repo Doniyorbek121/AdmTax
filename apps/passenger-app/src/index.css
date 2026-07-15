@@ -62,6 +62,10 @@ body {
 
 .leaflet-container { font-family: var(--font-sans); }
 
+/* Mashina markerlari silliq siljiydi (Yandex uslubi) */
+.leaflet-marker-icon.car-marker { transition: transform 0.9s linear; }
+.leaflet-zoom-anim .leaflet-marker-icon.car-marker { transition: none; }
+
 @keyframes slide-up {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }

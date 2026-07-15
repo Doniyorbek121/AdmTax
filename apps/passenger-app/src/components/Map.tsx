@@ -24,7 +24,7 @@ function pin(color: string, glyph: string) {
 function topCar(headingDeg = 0, active = false): L.DivIcon {
   const color = active ? '#f99307' : '#111827';
   return L.divIcon({
-    className: '',
+    className: 'car-marker',
     html: `<div style="transform:rotate(${headingDeg}deg);transition:transform .6s linear;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">
       <svg width="30" height="30" viewBox="0 0 48 48">
         <g>

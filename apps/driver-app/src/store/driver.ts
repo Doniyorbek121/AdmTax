@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import { getSocket } from '../api/socket';
 import { TASHKENT_CENTER } from '../lib/places';
 import { clearWatch, watchLocation } from '../lib/geolocation';
+import { notify, playOfferSound } from '../lib/sound';
 
 interface Offer {
   ride: Ride;
@@ -75,6 +76,8 @@ export const useDriver = create<DriverState>((set, get) => ({
       // Faqat bo'sh bo'lsa taklifni ko'rsatamiz
       if (!get().activeRide && !get().offer) {
         set({ offer: { ride: p.ride, expiresAt: Date.now() + p.expiresInSec * 1000 } });
+        playOfferSound();
+        notify('Yangi buyurtma 🚕', `${p.ride.pickup.address} → ${p.ride.dropoff.address}`);
       }
     });
     socket.on(SocketEvents.RIDE_UPDATED, (ride: Ride) => {

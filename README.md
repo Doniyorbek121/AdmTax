@@ -3,13 +3,16 @@
 To'liq (end-to-end) taksi buyurtma platformasi — Yandex Go / Wolt uslubida.
 Bitta monorepoda **5 ta ilova** va umumiy backend:
 
-| Ilova | Kim uchun | Texnologiya | Holat |
-|-------|-----------|-------------|-------|
-| **Backend API** | Barcha ilovalar | Express + TypeScript + Prisma + PostgreSQL + Socket.IO | ✅ Ishlaydi |
-| **Passenger app** | Yo'lovchilar | Expo (React Native + Web) | 🔜 |
-| **Driver app** | Haydovchilar | Expo (React Native + Web) | 🔜 |
-| **Admin web** | Boshqaruv | React + Vite + TypeScript | 🔜 |
-| **Operator web** | Dispecher / call-markaz | React + Vite + TypeScript | 🔜 |
+| Ilova | Kim uchun | Texnologiya | Port | Holat |
+|-------|-----------|-------------|------|-------|
+| **Backend API** | Barcha ilovalar | Express + TypeScript + Prisma + PostgreSQL + Socket.IO | 4000 | ✅ |
+| **Passenger app** | Yo'lovchilar | React + Vite (mobil-birinchi PWA) | 5175 | ✅ |
+| **Driver app** | Haydovchilar | React + Vite (mobil-birinchi PWA) | 5176 | ✅ |
+| **Admin web** | Boshqaruv | React + Vite + Tailwind | 5173 | ✅ |
+| **Operator web** | Dispecher / call-markaz | React + Vite + Tailwind | 5174 | ✅ |
+
+> Mobil ilovalar mobil-birinchi PWA sifatida qurilgan — telefonda brauzer orqali
+> to'liq ishlaydi. Keyingi qadam: Capacitor bilan native Android/iOS ilovaga o'rash.
 
 ## Arxitektura
 
@@ -51,6 +54,25 @@ npm run seed
 # 5. Backendni ishga tushirish
 npm run dev                 # → http://localhost:4000/api/v1
 ```
+
+### Barcha ilovalarni ishga tushirish
+
+Har birini alohida terminalda (root skriptlari bilan):
+
+```bash
+npm run dev:backend     # 4000 — API + Socket.IO
+npm run dev:admin       # 5173 — admin panel
+npm run dev:operator    # 5174 — operator konsoli
+npm run dev:passenger   # 5175 — yo'lovchi ilovasi
+npm run dev:driver      # 5176 — haydovchi ilovasi
+```
+
+### Sinab ko'rish stsenariysi
+
+1. **Haydovchi** (`5176`) — `+998933333331` bilan kiring → avtomatik onlayn.
+2. **Yo'lovchi** (`5175`) — `+998911111111` bilan kiring → manzil tanlang → taksi chaqiring.
+3. Haydovchi ilovasida **buyurtma taklifi** paydo bo'ladi → qabul qiling.
+4. **Operator** (`5174`) yoki **admin** (`5173`) panelida buyurtmani real vaqtda kuzating.
 
 ### Namuna hisoblar (seed'dan)
 

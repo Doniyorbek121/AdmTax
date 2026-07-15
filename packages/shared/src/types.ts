@@ -32,6 +32,14 @@ export interface Vehicle {
   vehicleClass: VehicleClass;
 }
 
+export interface DriverDocuments {
+  licenseNumber: string | null;
+  licensePhotoUrl: string | null;
+  techPassportUrl: string | null;
+  carPhotoUrl: string | null;
+  selfieUrl: string | null;
+}
+
 export interface DriverProfile {
   id: string;
   user: User;
@@ -42,6 +50,8 @@ export interface DriverProfile {
   totalRides: number;
   location: LatLng | null;
   headingDeg: number | null;
+  documents: DriverDocuments;
+  rejectionReason: string | null;
 }
 
 export interface Place {

@@ -59,6 +59,14 @@ export function toDriverProfile(d: DriverWithRelations): DriverProfile {
     totalRides: d.totalRides,
     location: d.lat != null && d.lng != null ? { lat: d.lat, lng: d.lng } : null,
     headingDeg: d.headingDeg,
+    documents: {
+      licenseNumber: d.licenseNumber,
+      licensePhotoUrl: d.licensePhotoUrl,
+      techPassportUrl: d.techPassportUrl,
+      carPhotoUrl: d.carPhotoUrl,
+      selfieUrl: d.selfieUrl,
+    },
+    rejectionReason: d.rejectionReason,
   };
 }
 

@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { env } from './env';
+import { uploadsRouter, UPLOAD_DIR } from './modules/uploads';
 import { errorHandler } from './middleware';
 import { authRouter } from './modules/auth';
 import { ridesRouter } from './modules/rides';
@@ -21,6 +22,9 @@ export function createApp() {
 
   app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
+  // Yuklangan rasmlar (hujjatlar) statik xizmati
+  app.use('/uploads', express.static(UPLOAD_DIR));
+
   const api = env.apiPrefix;
   app.use(`${api}/auth`, authRouter);
   app.use(`${api}/rides`, ridesRouter);
@@ -28,6 +32,7 @@ export function createApp() {
   app.use(`${api}/admin`, adminRouter);
   app.use(`${api}/geo`, geoRouter);
   app.use(`${api}/payments`, paymentsRouter);
+  app.use(`${api}/uploads`, uploadsRouter);
 
   app.use((_req, res) => res.status(404).json({ error: { message: 'Manzil topilmadi', code: 'NOT_FOUND' } }));
   app.use(errorHandler);

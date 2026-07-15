@@ -101,6 +101,12 @@ model DriverProfile {
   balance   Int                  @default(0)
   totalRides Int                 @default(0)
   licenseNumber String?
+  // Ro'yxatdan o'tish hujjatlari (moderatsiya uchun)
+  licensePhotoUrl  String?
+  techPassportUrl  String?
+  carPhotoUrl      String?
+  selfieUrl        String?
+  rejectionReason  String?
   // Oxirgi ma'lum joylashuv (real-time yangilanadi)
   lat       Float?
   lng       Float?

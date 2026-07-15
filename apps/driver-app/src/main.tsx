@@ -8,16 +8,23 @@ import { Auth } from './screens/Auth';
 import { Home } from './screens/Home';
 import { Offer } from './screens/Offer';
 import { Active } from './screens/Active';
+import { Registration } from './screens/Registration';
 
 function App() {
   const { user, ready, loadMe } = useAuth();
-  const { activeRide, loadProfile } = useDriver();
+  const { activeRide, profile, loadProfile } = useDriver();
 
   useEffect(() => { void initNative(); void loadMe(); }, [loadMe]);
   useEffect(() => { if (user) void loadProfile(); }, [user]);
 
   if (!ready) return <div className="phone bg-ink-950 grid place-items-center text-4xl">🚕</div>;
   if (!user) return <Auth />;
+
+  // Ro'yxatdan o'tish kerakmi: rad etilgan yoki hujjat yuklanmagan
+  const needsRegistration = profile &&
+    (profile.approval === 'REJECTED' ||
+      (profile.approval === 'PENDING' && !profile.documents.licensePhotoUrl));
+  if (needsRegistration) return <Registration />;
 
   return (
     <>

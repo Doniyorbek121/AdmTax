@@ -4,6 +4,9 @@ import { api } from '../api/client';
 import { Badge, Button, Card, PageHeader, Spinner } from '../components/ui';
 import { formatNumber, formatSom, VEHICLE_CLASS_LABEL } from '../lib/format';
 
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api/v1';
+const fullUrl = (p: string | null) => (!p ? '' : p.startsWith('http') ? p : API_BASE.replace(/\/api\/v1$/, '') + p);
+
 const APPROVAL_LABEL: Record<string, string> = {
   PENDING: 'Kutilmoqda',
   APPROVED: 'Tasdiqlangan',
@@ -26,6 +29,7 @@ export function Drivers() {
   const [drivers, setDrivers] = useState<DriverProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('');
+  const [selected, setSelected] = useState<DriverProfile | null>(null);
 
   const load = () => {
     setLoading(true);
@@ -36,8 +40,9 @@ export function Drivers() {
   };
   useEffect(load, [filter]);
 
-  const setApproval = async (id: string, approval: string) => {
-    await api.post(`/admin/drivers/${id}/approval`, { approval });
+  const setApproval = async (id: string, approval: string, reason?: string) => {
+    await api.post(`/admin/drivers/${id}/approval`, { approval, reason });
+    setSelected(null);
     load();
   };
 
@@ -105,14 +110,12 @@ export function Drivers() {
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex gap-1.5 justify-end">
+                      <Button variant="outline" className="!px-3 !py-1.5 text-xs" onClick={() => setSelected(d)}>
+                        Ko'rish
+                      </Button>
                       {d.approval !== 'APPROVED' && (
-                        <Button variant="outline" className="!px-3 !py-1.5 text-xs" onClick={() => setApproval(d.id, 'APPROVED')}>
+                        <Button variant="primary" className="!px-3 !py-1.5 text-xs" onClick={() => setApproval(d.id, 'APPROVED')}>
                           Tasdiqlash
-                        </Button>
-                      )}
-                      {d.approval !== 'BLOCKED' && (
-                        <Button variant="ghost" className="!px-3 !py-1.5 text-xs !text-rose-600" onClick={() => setApproval(d.id, 'BLOCKED')}>
-                          Bloklash
                         </Button>
                       )}
                     </div>
@@ -124,6 +127,68 @@ export function Drivers() {
           {drivers.length === 0 && <p className="text-center text-ink-400 py-12">Haydovchilar topilmadi</p>}
         </Card>
       )}
+
+      {selected && <DriverModal driver={selected} onClose={() => setSelected(null)} onAction={setApproval} />}
+    </div>
+  );
+}
+
+function DriverModal({
+  driver,
+  onClose,
+  onAction,
+}: {
+  driver: DriverProfile;
+  onClose: () => void;
+  onAction: (id: string, approval: string, reason?: string) => void;
+}) {
+  const [reason, setReason] = useState('');
+  const docs = driver.documents;
+  const items = [
+    { label: 'Haydovchilik guvohnomasi', url: docs.licensePhotoUrl },
+    { label: 'Texnik pasport', url: docs.techPassportUrl },
+    { label: 'Mashina rasmi', url: docs.carPhotoUrl },
+  ];
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-6" onClick={onClose}>
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="p-5 border-b border-ink-100 flex items-center justify-between">
+          <div>
+            <h3 className="font-bold text-lg text-ink-900">{driver.user.name}</h3>
+            <p className="text-sm text-ink-400">{driver.user.phone} · Guvohnoma: {docs.licenseNumber ?? '—'}</p>
+          </div>
+          <button onClick={onClose} className="text-ink-400 text-xl">✕</button>
+        </div>
+
+        <div className="p-5">
+          {driver.vehicle && (
+            <div className="bg-ink-50 rounded-xl p-3 mb-4 text-sm">
+              <b>{driver.vehicle.make} {driver.vehicle.model}</b> · {driver.vehicle.color} · {driver.vehicle.plate} · {VEHICLE_CLASS_LABEL[driver.vehicle.vehicleClass]} · {driver.vehicle.year}
+            </div>
+          )}
+          <div className="grid grid-cols-3 gap-3">
+            {items.map((it) => (
+              <div key={it.label}>
+                <p className="text-xs text-ink-400 mb-1">{it.label}</p>
+                {it.url ? (
+                  <a href={fullUrl(it.url)} target="_blank" rel="noreferrer">
+                    <img src={fullUrl(it.url)} alt={it.label} className="w-full h-28 object-cover rounded-lg border border-ink-100" />
+                  </a>
+                ) : (
+                  <div className="w-full h-28 rounded-lg bg-ink-50 grid place-items-center text-ink-300 text-xs">Yuklanmagan</div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 flex gap-2">
+            <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Rad etish sababi (ixtiyoriy)"
+              className="flex-1 rounded-xl border border-ink-200 px-3.5 py-2.5 text-sm" />
+            <Button variant="danger" onClick={() => onAction(driver.id, 'REJECTED', reason)}>Rad etish</Button>
+            <Button variant="primary" onClick={() => onAction(driver.id, 'APPROVED')}>Tasdiqlash</Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

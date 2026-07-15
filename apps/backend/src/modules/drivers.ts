@@ -68,3 +68,45 @@ driversRouter.put(
     res.json(toDriverProfile(updated));
   }),
 );
+
+/** To'liq ro'yxatdan o'tish — shaxsiy, mashina va hujjatlar → moderatsiyaga */
+const registerSchema = z.object({
+  name: z.string().min(2),
+  licenseNumber: z.string().min(3),
+  vehicle: vehicleSchema,
+  documents: z.object({
+    licensePhotoUrl: z.string().min(1),
+    techPassportUrl: z.string().min(1),
+    carPhotoUrl: z.string().min(1),
+    selfieUrl: z.string().optional(),
+  }),
+});
+driversRouter.post(
+  '/register',
+  validate(registerSchema),
+  asyncHandler(async (req, res) => {
+    const body = req.body as z.infer<typeof registerSchema>;
+    const dp = await myProfile(req.user!.id);
+
+    await prisma.user.update({ where: { id: req.user!.id }, data: { name: body.name } });
+    await prisma.vehicle.upsert({
+      where: { driverId: dp.id },
+      update: body.vehicle,
+      create: { ...body.vehicle, driverId: dp.id },
+    });
+    await prisma.driverProfile.update({
+      where: { id: dp.id },
+      data: {
+        licenseNumber: body.licenseNumber,
+        licensePhotoUrl: body.documents.licensePhotoUrl,
+        techPassportUrl: body.documents.techPassportUrl,
+        carPhotoUrl: body.documents.carPhotoUrl,
+        selfieUrl: body.documents.selfieUrl ?? null,
+        approval: 'PENDING',
+        rejectionReason: null,
+      },
+    });
+    const updated = await myProfile(req.user!.id);
+    res.json(toDriverProfile(updated));
+  }),
+);

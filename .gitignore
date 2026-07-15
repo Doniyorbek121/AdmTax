@@ -44,6 +44,7 @@ coverage/
 # Misc
 tmp/
 temp/
+uploads/
 
 # Capacitor / Android native build artifacts
 apps/*/android/.gradle/

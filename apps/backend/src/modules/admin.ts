@@ -105,18 +105,24 @@ adminRouter.get(
 );
 
 /** Haydovchini tasdiqlash/rad etish/bloklash */
-const approvalSchema = z.object({ approval: z.nativeEnum(DriverApprovalStatus) });
+const approvalSchema = z.object({
+  approval: z.nativeEnum(DriverApprovalStatus),
+  reason: z.string().max(300).optional(),
+});
 adminRouter.post(
   '/drivers/:id/approval',
   authorize(UserRole.ADMIN),
   validate(approvalSchema),
   asyncHandler(async (req, res) => {
-    const { approval } = req.body as z.infer<typeof approvalSchema>;
+    const { approval, reason } = req.body as z.infer<typeof approvalSchema>;
     const dp = await prisma.driverProfile.findUnique({ where: { id: req.params.id } });
     if (!dp) throw NotFound('Haydovchi topilmadi');
     const updated = await prisma.driverProfile.update({
       where: { id: req.params.id },
-      data: { approval },
+      data: {
+        approval,
+        rejectionReason: approval === DriverApprovalStatus.REJECTED ? reason ?? null : null,
+      },
       include: { user: true, vehicle: true },
     });
     res.json(toDriverProfile(updated));

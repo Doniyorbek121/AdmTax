@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import { initNative } from './lib/native';
 import { useAuth } from './store/auth';
 import { useDriver } from './store/driver';
 import { Auth } from './screens/Auth';
@@ -12,7 +13,7 @@ function App() {
   const { user, ready, loadMe } = useAuth();
   const { activeRide, loadProfile } = useDriver();
 
-  useEffect(() => { void loadMe(); }, [loadMe]);
+  useEffect(() => { void initNative(); void loadMe(); }, [loadMe]);
   useEffect(() => { if (user) void loadProfile(); }, [user]);
 
   if (!ready) return <div className="phone bg-ink-950 grid place-items-center text-4xl">🚕</div>;

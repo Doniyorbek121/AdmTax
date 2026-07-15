@@ -4,6 +4,8 @@ import { SocketEvents } from '@adm/shared';
 import { api } from '../api/client';
 import { getSocket } from '../api/socket';
 import { TASHKENT_PLACES } from '../lib/places';
+import { getCurrentLocation } from '../lib/geolocation';
+import { reverseGeocode } from '../lib/geocode';
 
 type Screen = 'home' | 'search' | 'choose' | 'active';
 
@@ -18,8 +20,10 @@ interface RideState {
   driverLocation: { lat: number; lng: number } | null;
   loading: boolean;
 
+  locating: boolean;
   setScreen: (s: Screen) => void;
   setPickup: (p: Place) => void;
+  useCurrentLocation: () => Promise<void>;
   setDropoff: (p: Place) => void;
   fetchEstimates: () => Promise<void>;
   selectClass: (c: VehicleClass) => void;
@@ -43,9 +47,20 @@ export const useRide = create<RideState>((set, get) => ({
   activeRide: null,
   driverLocation: null,
   loading: false,
+  locating: false,
 
   setScreen: (screen) => set({ screen }),
   setPickup: (pickup) => set({ pickup }),
+  useCurrentLocation: async () => {
+    set({ locating: true });
+    try {
+      const point = await getCurrentLocation();
+      const address = await reverseGeocode(point);
+      set({ pickup: { address, point } });
+    } finally {
+      set({ locating: false });
+    }
+  },
   setDropoff: (dropoff) => set({ dropoff, screen: 'choose' }),
 
   fetchEstimates: async () => {

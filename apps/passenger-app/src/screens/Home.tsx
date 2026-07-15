@@ -4,7 +4,7 @@ import { Map } from '../components/Map';
 
 export function Home() {
   const { user } = useAuth();
-  const { pickup, setScreen } = useRide();
+  const { pickup, setScreen, useCurrentLocation, locating } = useRide();
 
   return (
     <div className="phone bg-ink-100">
@@ -27,6 +27,16 @@ export function Home() {
         <div className="bg-white rounded-t-3xl shadow-2xl p-5 pb-8">
           <div className="w-10 h-1.5 bg-ink-200 rounded-full mx-auto mb-5" />
           <h2 className="text-xl font-bold text-ink-900 mb-4">Qayerga boramiz?</h2>
+
+          {/* Olib ketish nuqtasi */}
+          <button
+            onClick={useCurrentLocation}
+            className="w-full flex items-center gap-3 bg-emerald-50 rounded-2xl px-4 py-3 text-left mb-2 active:bg-emerald-100 transition"
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+            <span className="text-ink-700 font-medium text-sm truncate flex-1">{pickup.address}</span>
+            <span className="text-brand-600 text-lg shrink-0">{locating ? '⏳' : '📍'}</span>
+          </button>
 
           <button
             onClick={() => setScreen('search')}

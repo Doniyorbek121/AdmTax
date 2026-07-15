@@ -1,20 +1,22 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRide } from '../store/ride';
-import { TASHKENT_PLACES } from '../lib/places';
-
-const CAT_ICON: Record<string, string> = { popular: '📍', transport: '🚉', mall: '🏬' };
+import { searchPlaces, type GeoResult } from '../lib/geocode';
 
 export function Search() {
   const { setScreen, setDropoff, pickup, setPickup } = useRide();
   const [q, setQ] = useState('');
   const [editing, setEditing] = useState<'from' | 'to'>('to');
+  const [results, setResults] = useState<GeoResult[]>([]);
 
-  const results = useMemo(
-    () => TASHKENT_PLACES.filter((p) => p.address.toLowerCase().includes(q.toLowerCase())),
-    [q],
-  );
+  // Debounced geokoder qidiruvi (Yandex kaliti bo'lsa real, aks holda preset)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      void searchPlaces(q).then(setResults);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [q]);
 
-  const pick = (place: (typeof TASHKENT_PLACES)[number]) => {
+  const pick = (place: GeoResult) => {
     if (editing === 'from') {
       setPickup({ address: place.address, point: place.point });
       setEditing('to');
@@ -47,10 +49,10 @@ export function Search() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {results.map((p) => (
-          <button key={p.address} onClick={() => pick(p)}
+        {results.map((p, i) => (
+          <button key={`${p.address}-${i}`} onClick={() => pick(p)}
             className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-ink-100 text-left active:bg-ink-50">
-            <span className="w-9 h-9 rounded-full bg-ink-100 grid place-items-center">{CAT_ICON[p.category]}</span>
+            <span className="w-9 h-9 rounded-full bg-ink-100 grid place-items-center">📍</span>
             <span className="text-ink-800 font-medium">{p.address}</span>
           </button>
         ))}

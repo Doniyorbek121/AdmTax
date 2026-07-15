@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import { initNative } from './lib/native';
 import { useAuth } from './store/auth';
 import { useRide } from './store/ride';
 import { Auth } from './screens/Auth';
@@ -13,7 +14,7 @@ function App() {
   const { user, ready, loadMe } = useAuth();
   const { screen, loadActive } = useRide();
 
-  useEffect(() => { void loadMe(); }, [loadMe]);
+  useEffect(() => { void initNative(); void loadMe(); }, [loadMe]);
   useEffect(() => { if (user) void loadActive(); }, [user]);
 
   if (!ready) {

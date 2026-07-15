@@ -4,6 +4,7 @@ import { SocketEvents } from '@adm/shared';
 import { api } from '../api/client';
 import { getSocket } from '../api/socket';
 import { TASHKENT_CENTER } from '../lib/places';
+import { clearWatch, watchLocation } from '../lib/geolocation';
 
 interface Offer {
   ride: Ride;
@@ -17,6 +18,8 @@ interface DriverState {
   offer: Offer | null;
   activeRide: Ride | null;
   locTimer: number | null;
+  watchId: string | null;
+  headingDeg: number | null;
 
   loadProfile: () => Promise<void>;
   toggleOnline: () => Promise<void>;
@@ -34,6 +37,8 @@ export const useDriver = create<DriverState>((set, get) => ({
   offer: null,
   activeRide: null,
   locTimer: null,
+  watchId: null,
+  headingDeg: null,
 
   loadProfile: async () => {
     const { data } = await api.get<DriverProfile>('/drivers/me');
@@ -56,9 +61,9 @@ export const useDriver = create<DriverState>((set, get) => ({
     const { data } = await api.post('/drivers/status', { online: next });
     set({ profile: data, online: next });
     if (next) get().broadcastLocation();
-    else if (get().locTimer) {
-      clearInterval(get().locTimer!);
-      set({ locTimer: null });
+    else {
+      if (get().locTimer) { clearInterval(get().locTimer!); set({ locTimer: null }); }
+      if (get().watchId) { void clearWatch(get().watchId!); set({ watchId: null }); }
     }
   },
 
@@ -85,13 +90,23 @@ export const useDriver = create<DriverState>((set, get) => ({
   broadcastLocation: () => {
     const socket = getSocket();
     const send = () => {
-      const { location, activeRide } = get();
+      const { location, headingDeg, activeRide } = get();
       socket.emit(SocketEvents.DRIVER_LOCATION, {
         location,
-        headingDeg: Math.random() * 360,
+        headingDeg: headingDeg ?? 0,
         rideId: activeRide?.id,
       });
     };
+
+    // Real GPS kuzatuvi (native/web). Har yangilanishda joylashuvni saqlab, yuboramiz.
+    if (!get().watchId) {
+      void watchLocation((loc, heading) => {
+        set({ location: loc, headingDeg: heading ?? get().headingDeg });
+        send();
+      }).then((id) => set({ watchId: id }));
+    }
+
+    // GPS bo'lmasa ham har 5s da oxirgi ma'lum joylashuvni yuboramiz (heartbeat)
     send();
     if (get().locTimer) clearInterval(get().locTimer!);
     const timer = window.setInterval(send, 5000);

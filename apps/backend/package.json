@@ -11,6 +11,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "seed": "tsx prisma/seed.ts",
+    "test:e2e": "node test/lifecycle.mjs",
     "lint": "tsc --noEmit"
   },
   "prisma": {

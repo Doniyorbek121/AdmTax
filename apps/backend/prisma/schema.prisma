@@ -77,6 +77,7 @@ model User {
   ratingCount Int    @default(0)
   walletBalance Int   @default(0)
   isBlocked Boolean  @default(false)
+  language  String   @default("uz")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -88,8 +89,62 @@ model User {
   refreshTokens   RefreshToken[]
   ratingsGiven    Rating[]        @relation("RatingsGiven")
   ratingsReceived Rating[]        @relation("RatingsReceived")
+  savedPlaces   SavedPlace[]
+  promoUsages   PromoUsage[]
 
   @@index([role])
+}
+
+// Saqlangan manzillar (Uy, Ish, ...)
+model SavedPlace {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String
+  icon      String   @default("star")
+  address   String
+  lat       Float
+  lng       Float
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+enum PromoType {
+  PERCENT
+  FIXED
+}
+
+// Promo-kodlar (chegirmalar)
+model PromoCode {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  type        PromoType
+  value       Int
+  maxDiscount Int?
+  minFare     Int          @default(0)
+  maxUses     Int?
+  perUser     Int          @default(1)
+  usedCount   Int          @default(0)
+  active      Boolean      @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime     @default(now())
+
+  usages      PromoUsage[]
+}
+
+model PromoUsage {
+  id        String    @id @default(cuid())
+  promoId   String
+  promo     PromoCode @relation(fields: [promoId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rideId    String?
+  discount  Int
+  createdAt DateTime  @default(now())
+
+  @@index([promoId])
+  @@index([userId])
 }
 
 model DriverProfile {
@@ -163,6 +218,10 @@ model Ride {
   finalFare     Int?
   fareBreakdown Json?
   surgeMultiplier Float       @default(1.0)
+  // Xavfsizlik: yo'lovchi haydovchiga aytadigan 4 xonali PIN
+  pinCode       String?
+  promoCode     String?
+  discount      Int           @default(0)
   distanceMeters Int          @default(0)
   durationSeconds Int         @default(0)
 

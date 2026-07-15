@@ -100,6 +100,11 @@ export function toRide(r: RideWithRelations): Ride {
     fareBreakdown: (r.fareBreakdown as unknown as FareBreakdown) ?? null,
     distanceMeters: r.distanceMeters,
     durationSeconds: r.durationSeconds,
+    // PIN umumiy obyektda YUBORILMAYDI (haydovchiga oshkor bo'lmasligi uchun).
+    // Yo'lovchi uni alohida /rides/:id/pin endpointidan oladi.
+    pinCode: null,
+    promoCode: r.promoCode ?? null,
+    discount: r.discount ?? 0,
     comment: r.comment,
     cancelledBy: (r.cancelledBy as CancelledBy) ?? null,
     cancelReason: r.cancelReason,

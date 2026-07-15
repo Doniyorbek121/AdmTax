@@ -78,6 +78,10 @@ export interface Ride {
   fareBreakdown: FareBreakdown | null;
   distanceMeters: number;
   durationSeconds: number;
+  /** Xavfsizlik PIN — yo'lovchi haydovchiga aytadi */
+  pinCode: string | null;
+  promoCode: string | null;
+  discount: number;
   comment: string | null;
   cancelledBy: CancelledBy | null;
   cancelReason: string | null;

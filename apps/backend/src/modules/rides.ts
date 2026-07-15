@@ -17,6 +17,7 @@ import { toRide, rideInclude } from '../services/serialize';
 import { estimateRoute, currentSurge } from '../services/routing';
 import { getTariff } from '../services/tariffs';
 import { dispatchRide } from '../services/matching';
+import { evaluatePromo, consumePromo } from '../services/promo';
 import { hub } from '../realtime/hub';
 
 export const ridesRouter = Router();
@@ -40,6 +41,7 @@ const createSchema = z.object({
   paymentMethod: z.nativeEnum(PaymentMethod),
   comment: z.string().max(300).optional(),
   passengerPhone: z.string().optional(),
+  promoCode: z.string().max(40).optional(),
 });
 
 /** Narx bahosi */
@@ -137,11 +139,27 @@ ridesRouter.post(
     const route = await estimateRoute(points);
     const tariff = await getTariff(body.vehicleClass);
     const surge = currentSurge();
-    const breakdown = calculateFare(tariff, {
+
+    // Promo-kod (agar bo'lsa va yo'lovchi ro'yxatdan o'tgan bo'lsa)
+    let discount = 0;
+    let appliedPromo: string | null = null;
+    const grossBreakdown = calculateFare(tariff, {
       distanceMeters: route.distanceMeters,
       durationSeconds: route.durationSeconds,
       surgeMultiplier: surge,
     });
+    if (body.promoCode && passengerId) {
+      const p = await evaluatePromo(body.promoCode, passengerId, grossBreakdown.total);
+      if (p.valid) { discount = p.discount; appliedPromo = p.code ?? null; }
+    }
+    const breakdown = calculateFare(tariff, {
+      distanceMeters: route.distanceMeters,
+      durationSeconds: route.durationSeconds,
+      surgeMultiplier: surge,
+      discount,
+    });
+
+    const pinCode = Math.floor(1000 + Math.random() * 9000).toString();
 
     const ride = await prisma.ride.create({
       data: {
@@ -164,9 +182,16 @@ ridesRouter.post(
         distanceMeters: route.distanceMeters,
         durationSeconds: route.durationSeconds,
         comment: body.comment ?? null,
+        pinCode,
+        promoCode: appliedPromo,
+        discount,
       },
       include: rideInclude,
     });
+
+    if (appliedPromo && passengerId) {
+      await consumePromo(appliedPromo, passengerId, ride.id, discount);
+    }
 
     hub.emitRideUpdate(toRide(ride));
     // Haydovchilarga taklif yuborish (asinxron)
@@ -269,11 +294,32 @@ ridesRouter.post(
   asyncHandler(async (req, res) => transition(req, res, RideStatus.ACCEPTED, RideStatus.ARRIVED, { arrivedAt: new Date() })),
 );
 
-/** Safarni boshlash */
+/** Yo'lovchi safar PIN kodini oladi (xavfsizlik) */
+ridesRouter.get(
+  '/:id/pin',
+  asyncHandler(async (req, res) => {
+    const ride = await prisma.ride.findUnique({ where: { id: req.params.id } });
+    if (!ride) throw NotFound('Buyurtma topilmadi');
+    if (ride.passengerId !== req.user!.id) throw Forbidden('Bu safar sizniki emas');
+    res.json({ pin: ride.pinCode });
+  }),
+);
+
+/** Safarni boshlash — PIN kod tekshiriladi */
+const startSchema = z.object({ pin: z.string().optional() });
 ridesRouter.post(
   '/:id/start',
   authorize(UserRole.DRIVER),
-  asyncHandler(async (req, res) => transition(req, res, RideStatus.ARRIVED, RideStatus.IN_PROGRESS, { startedAt: new Date() })),
+  validate(startSchema),
+  asyncHandler(async (req, res) => {
+    const ride = await prisma.ride.findUnique({ where: { id: req.params.id } });
+    if (!ride) throw NotFound('Buyurtma topilmadi');
+    // PIN o'rnatilgan bo'lsa — mos kelishi shart
+    if (ride.pinCode && (req.body as { pin?: string }).pin !== ride.pinCode) {
+      throw BadRequest('PIN kod noto\'g\'ri', 'INVALID_PIN');
+    }
+    return transition(req, res, RideStatus.ARRIVED, RideStatus.IN_PROGRESS, { startedAt: new Date() });
+  }),
 );
 
 /** Safarni yakunlash — yakuniy narxni hisoblash */
@@ -295,6 +341,7 @@ ridesRouter.post(
       durationSeconds: ride.durationSeconds,
       waitSeconds,
       surgeMultiplier: ride.surgeMultiplier,
+      discount: ride.discount,
     });
 
     // To'lov holatini aniqlash. WALLET bo'lsa — hamyondan yechish.

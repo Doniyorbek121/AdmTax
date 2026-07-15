@@ -102,7 +102,22 @@ async function main() {
     });
   }
 
+  // Promo-kodlar
+  const promos = [
+    { code: 'ADM2026', type: 'PERCENT' as const, value: 20, maxDiscount: 15000, minFare: 15000, perUser: 3 },
+    { code: 'SALOM', type: 'FIXED' as const, value: 10000, minFare: 20000, perUser: 1 },
+    { code: 'YANGI', type: 'PERCENT' as const, value: 50, maxDiscount: 25000, minFare: 12000, perUser: 1 },
+  ];
+  for (const p of promos) {
+    await prisma.promoCode.upsert({
+      where: { code: p.code },
+      update: {},
+      create: { ...p, active: true, expiresAt: new Date(Date.now() + 90 * 24 * 3600 * 1000) },
+    });
+  }
+
   console.log('✅ Seed tugadi.');
+  console.log('   Promo-kodlar: ADM2026 (-20%), SALOM (-10 000), YANGI (-50%)');
   console.log('   Admin:    +998900000000');
   console.log('   Operator: +998900000001');
   console.log('   (OTP kodi terminalда ko\'rinadi yoki dev javobida qaytadi)');

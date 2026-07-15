@@ -1,0 +1,228 @@
+// ADM Taksi — ma'lumotlar bazasi sxemasi
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PASSENGER
+  DRIVER
+  OPERATOR
+  ADMIN
+}
+
+enum RideStatus {
+  SEARCHING
+  ACCEPTED
+  ARRIVING
+  ARRIVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_DRIVERS
+}
+
+enum CancelledBy {
+  PASSENGER
+  DRIVER
+  OPERATOR
+  SYSTEM
+}
+
+enum VehicleClass {
+  ECONOMY
+  COMFORT
+  BUSINESS
+  MINIVAN
+  DELIVERY
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  WALLET
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum DriverStatus {
+  OFFLINE
+  ONLINE
+  BUSY
+}
+
+enum DriverApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  BLOCKED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  role      UserRole @default(PASSENGER)
+  avatarUrl String?
+  rating    Float    @default(5.0)
+  ratingCount Int    @default(0)
+  isBlocked Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  driverProfile   DriverProfile?
+  ridesAsPassenger Ride[]         @relation("PassengerRides")
+  operatorRides   Ride[]          @relation("OperatorRides")
+  refreshTokens   RefreshToken[]
+  ratingsGiven    Rating[]        @relation("RatingsGiven")
+  ratingsReceived Rating[]        @relation("RatingsReceived")
+
+  @@index([role])
+}
+
+model DriverProfile {
+  id        String               @id @default(cuid())
+  userId    String               @unique
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    DriverStatus         @default(OFFLINE)
+  approval  DriverApprovalStatus @default(PENDING)
+  balance   Int                  @default(0)
+  totalRides Int                 @default(0)
+  licenseNumber String?
+  // Oxirgi ma'lum joylashuv (real-time yangilanadi)
+  lat       Float?
+  lng       Float?
+  headingDeg Float?
+  lastSeenAt DateTime?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  vehicle   Vehicle?
+  rides     Ride[]               @relation("DriverRides")
+
+  @@index([status, approval])
+}
+
+model Vehicle {
+  id            String        @id @default(cuid())
+  driverId      String        @unique
+  driver        DriverProfile @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  make          String
+  model         String
+  color         String
+  plate         String        @unique
+  year          Int
+  vehicleClass  VehicleClass  @default(ECONOMY)
+  createdAt     DateTime      @default(now())
+}
+
+model Ride {
+  id            String        @id @default(cuid())
+  status        RideStatus    @default(SEARCHING)
+
+  passengerId   String?
+  passenger     User?         @relation("PassengerRides", fields: [passengerId], references: [id])
+  driverId      String?
+  driver        DriverProfile? @relation("DriverRides", fields: [driverId], references: [id])
+  operatorId    String?
+  operator      User?         @relation("OperatorRides", fields: [operatorId], references: [id])
+
+  vehicleClass  VehicleClass  @default(ECONOMY)
+  paymentMethod PaymentMethod @default(CASH)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  pickupAddress String
+  pickupLat     Float
+  pickupLng     Float
+  dropoffAddress String
+  dropoffLat    Float
+  dropoffLng    Float
+  // Oraliq to'xtashlar va marshrut JSON sifatida
+  stops         Json?
+  routePolyline Json?
+
+  estimatedFare Int
+  finalFare     Int?
+  fareBreakdown Json?
+  surgeMultiplier Float       @default(1.0)
+  distanceMeters Int          @default(0)
+  durationSeconds Int         @default(0)
+
+  comment       String?
+  cancelledBy   CancelledBy?
+  cancelReason  String?
+
+  createdAt     DateTime      @default(now())
+  acceptedAt    DateTime?
+  arrivedAt     DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  ratings       Rating[]
+
+  @@index([status])
+  @@index([passengerId])
+  @@index([driverId])
+  @@index([createdAt])
+}
+
+model Rating {
+  id         String   @id @default(cuid())
+  rideId     String
+  ride       Ride     @relation(fields: [rideId], references: [id], onDelete: Cascade)
+  fromUserId String
+  fromUser   User     @relation("RatingsGiven", fields: [fromUserId], references: [id])
+  toUserId   String
+  toUser     User     @relation("RatingsReceived", fields: [toUserId], references: [id])
+  score      Int
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  @@unique([rideId, fromUserId])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Tarif jadvali — admin tomonidan boshqariladi
+model Tariff {
+  id             String       @id @default(cuid())
+  vehicleClass   VehicleClass @unique
+  baseFare       Int
+  perKm          Int
+  perMinute      Int
+  minFare        Int
+  freeWaitMinutes Int         @default(3)
+  perWaitMinute  Int
+  active         Boolean      @default(true)
+  updatedAt      DateTime     @updatedAt
+}

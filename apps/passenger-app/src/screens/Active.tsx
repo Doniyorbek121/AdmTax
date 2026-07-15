@@ -6,7 +6,7 @@ import { Map } from '../components/Map';
 import { formatSom, RIDE_STATUS_LABEL, VEHICLE_CLASS_LABEL } from '../lib/format';
 
 export function Active() {
-  const { activeRide: ride, driverLocation, cancelRide, reset } = useRide();
+  const { activeRide: ride, driverLocation, ridePin, cancelRide, reset } = useRide();
   const [rating, setRating] = useState(0);
   const [rated, setRated] = useState(false);
 
@@ -53,6 +53,17 @@ export function Active() {
           {isSearching && (
             <div className="flex justify-center py-4">
               <div className="w-8 h-8 border-3 border-ink-200 border-t-brand-500 rounded-full animate-spin" style={{ borderWidth: 3 }} />
+            </div>
+          )}
+
+          {/* Xavfsizlik PIN — haydovchiga aytiladi */}
+          {ridePin && ['ACCEPTED', 'ARRIVING', 'ARRIVED'].includes(ride.status) && (
+            <div className="flex items-center justify-between bg-ink-900 text-white rounded-2xl px-4 py-3 mb-4">
+              <div>
+                <p className="text-xs text-ink-400">Xavfsizlik kodi</p>
+                <p className="text-[11px] text-ink-500">Haydovchiga ayting</p>
+              </div>
+              <span className="text-2xl font-bold tracking-[0.3em] text-brand-400">{ridePin}</span>
             </div>
           )}
 

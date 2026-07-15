@@ -16,8 +16,12 @@ interface RideState {
   estimates: FareEstimateResult[];
   selectedClass: VehicleClass;
   paymentMethod: PaymentMethod;
+  promoCode: string;
+  promoDiscount: number;
+  promoMessage: string;
   activeRide: Ride | null;
   driverLocation: { lat: number; lng: number } | null;
+  ridePin: string | null;
   loading: boolean;
 
   locating: boolean;
@@ -28,9 +32,12 @@ interface RideState {
   fetchEstimates: () => Promise<void>;
   selectClass: (c: VehicleClass) => void;
   setPayment: (m: PaymentMethod) => void;
+  applyPromo: (code: string) => Promise<void>;
+  clearPromo: () => void;
   confirmRide: () => Promise<void>;
   cancelRide: () => Promise<void>;
   loadActive: () => Promise<void>;
+  loadPin: () => Promise<void>;
   subscribeActive: () => void;
   reset: () => void;
 }
@@ -44,8 +51,12 @@ export const useRide = create<RideState>((set, get) => ({
   estimates: [],
   selectedClass: 'ECONOMY' as VehicleClass,
   paymentMethod: 'CASH' as PaymentMethod,
+  promoCode: '',
+  promoDiscount: 0,
+  promoMessage: '',
   activeRide: null,
   driverLocation: null,
+  ridePin: null,
   loading: false,
   locating: false,
 
@@ -81,8 +92,21 @@ export const useRide = create<RideState>((set, get) => ({
   selectClass: (selectedClass) => set({ selectedClass }),
   setPayment: (paymentMethod) => set({ paymentMethod }),
 
+  applyPromo: async (code) => {
+    const { estimates, selectedClass } = get();
+    const fare = estimates.find((e) => e.vehicleClass === selectedClass)?.breakdown.total ?? 0;
+    try {
+      const { data } = await api.post('/promos/validate', { code: code.trim().toUpperCase(), fare });
+      if (data.valid) set({ promoCode: code.trim().toUpperCase(), promoDiscount: data.discount, promoMessage: '' });
+      else set({ promoCode: '', promoDiscount: 0, promoMessage: data.message ?? 'Kod yaroqsiz' });
+    } catch {
+      set({ promoMessage: 'Xatolik' });
+    }
+  },
+  clearPromo: () => set({ promoCode: '', promoDiscount: 0, promoMessage: '' }),
+
   confirmRide: async () => {
-    const { pickup, dropoff, selectedClass, paymentMethod } = get();
+    const { pickup, dropoff, selectedClass, paymentMethod, promoCode } = get();
     if (!dropoff) return;
     set({ loading: true });
     try {
@@ -91,9 +115,11 @@ export const useRide = create<RideState>((set, get) => ({
         dropoff,
         vehicleClass: selectedClass,
         paymentMethod,
+        ...(promoCode ? { promoCode } : {}),
       });
       set({ activeRide: data, screen: 'active', loading: false });
       get().subscribeActive();
+      void get().loadPin();
     } catch (e) {
       set({ loading: false });
       throw e;
@@ -112,7 +138,17 @@ export const useRide = create<RideState>((set, get) => ({
     if (data) {
       set({ activeRide: data, screen: 'active' });
       get().subscribeActive();
+      void get().loadPin();
     }
+  },
+
+  loadPin: async () => {
+    const ride = get().activeRide;
+    if (!ride) return;
+    try {
+      const { data } = await api.get(`/rides/${ride.id}/pin`);
+      set({ ridePin: data.pin });
+    } catch { /* ignore */ }
   },
 
   subscribeActive: () => {
@@ -135,5 +171,5 @@ export const useRide = create<RideState>((set, get) => ({
     });
   },
 
-  reset: () => set({ screen: 'home', dropoff: null, estimates: [], activeRide: null, driverLocation: null }),
+  reset: () => set({ screen: 'home', dropoff: null, estimates: [], activeRide: null, driverLocation: null, ridePin: null, promoCode: '', promoDiscount: 0, promoMessage: '' }),
 }));

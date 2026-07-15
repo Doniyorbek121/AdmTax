@@ -1,13 +1,21 @@
+import { useEffect, useState } from 'react';
 import { useAuth } from '../store/auth';
 import { useRide } from '../store/ride';
+import { api } from '../api/client';
 import { Map } from '../components/Map';
 import { formatSom } from '../lib/format';
 import { useNearbyCars } from '../lib/useNearbyCars';
 
+interface SavedPlace { id: string; label: string; icon: string; address: string; lat: number; lng: number }
+const ICON: Record<string, string> = { home: '🏠', work: '💼', star: '⭐' };
+
 export function Home() {
   const { user } = useAuth();
-  const { pickup, setScreen, useCurrentLocation, locating } = useRide();
+  const { pickup, setScreen, setDropoff, useCurrentLocation, locating } = useRide();
   const cars = useNearbyCars(pickup.point);
+  const [places, setPlaces] = useState<SavedPlace[]>([]);
+
+  useEffect(() => { void api.get('/places').then((r) => setPlaces(r.data)).catch(() => {}); }, []);
 
   return (
     <div className="phone bg-ink-100">
@@ -59,12 +67,19 @@ export function Home() {
             <span className="text-ink-500 font-medium">Manzilni kiriting…</span>
           </button>
 
-          <div className="flex gap-2 mt-4">
-            {['🏠 Uy', '💼 Ish', '⭐ Saqlangan'].map((t) => (
-              <button key={t} className="flex-1 bg-ink-50 border border-ink-100 rounded-xl py-3 text-sm font-medium text-ink-600 active:bg-ink-100">
-                {t}
+          <div className="flex gap-2 mt-4 overflow-x-auto">
+            {places.length > 0 ? (
+              places.map((p) => (
+                <button key={p.id} onClick={() => setDropoff({ address: p.address, point: { lat: p.lat, lng: p.lng } })}
+                  className="flex-1 min-w-[90px] bg-ink-50 border border-ink-100 rounded-xl py-3 px-2 text-sm font-medium text-ink-600 active:bg-ink-100">
+                  {ICON[p.icon] ?? '⭐'} {p.label}
+                </button>
+              ))
+            ) : (
+              <button onClick={() => setScreen('search')} className="flex-1 bg-ink-50 border border-dashed border-ink-200 rounded-xl py-3 text-sm font-medium text-ink-400">
+                + Manzil saqlash
               </button>
-            ))}
+            )}
           </div>
         </div>
       </div>

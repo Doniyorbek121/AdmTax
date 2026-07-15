@@ -27,7 +27,7 @@ interface DriverState {
   broadcastLocation: () => void;
   acceptOffer: () => Promise<void>;
   declineOffer: () => void;
-  advanceRide: (action: 'arrived' | 'start' | 'complete') => Promise<void>;
+  advanceRide: (action: 'arrived' | 'start' | 'complete', pin?: string) => Promise<void>;
 }
 
 export const useDriver = create<DriverState>((set, get) => ({
@@ -129,10 +129,10 @@ export const useDriver = create<DriverState>((set, get) => ({
 
   declineOffer: () => set({ offer: null }),
 
-  advanceRide: async (action) => {
+  advanceRide: async (action, pin) => {
     const ride = get().activeRide;
     if (!ride) return;
-    const { data } = await api.post(`/rides/${ride.id}/${action}`);
+    const { data } = await api.post(`/rides/${ride.id}/${action}`, action === 'start' ? { pin } : {});
     set({ activeRide: data });
   },
 }));

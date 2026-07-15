@@ -18,8 +18,11 @@ export function Choose() {
   const {
     pickup, dropoff, estimates, selectedClass, selectClass, paymentMethod, setPayment,
     fetchEstimates, confirmRide, setScreen, loading,
+    promoCode, promoDiscount, promoMessage, applyPromo, clearPromo,
   } = useRide();
   const [err, setErr] = useState('');
+  const [promoInput, setPromoInput] = useState('');
+  const [showPromo, setShowPromo] = useState(false);
 
   const cars = useNearbyCars(pickup.point);
 
@@ -79,6 +82,27 @@ export function Choose() {
               Masofa: {formatDistance(estimates[0].distanceMeters)}
             </p>
           )}
+
+          {/* Promo-kod */}
+          <div className="mt-3">
+            {promoDiscount > 0 ? (
+              <div className="flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-2.5">
+                <span className="text-sm text-emerald-700 font-semibold">🎁 {promoCode} · −{formatSom(promoDiscount)}</span>
+                <button onClick={() => { clearPromo(); setPromoInput(''); setShowPromo(false); }} className="text-emerald-600 text-sm">Olib tashlash</button>
+              </div>
+            ) : showPromo ? (
+              <div>
+                <div className="flex gap-2">
+                  <input value={promoInput} onChange={(e) => setPromoInput(e.target.value.toUpperCase())} placeholder="Promo-kod"
+                    className="flex-1 rounded-xl border border-ink-200 px-3.5 py-2.5 text-sm uppercase" />
+                  <button onClick={() => applyPromo(promoInput)} className="rounded-xl bg-ink-900 text-white px-4 text-sm font-semibold">Qo'llash</button>
+                </div>
+                {promoMessage && <p className="text-rose-600 text-xs mt-1.5">{promoMessage}</p>}
+              </div>
+            ) : (
+              <button onClick={() => setShowPromo(true)} className="text-brand-600 text-sm font-semibold">🎁 Promo-kod kiritish</button>
+            )}
+          </div>
 
           {/* To'lov */}
           <div className="flex gap-2 mt-4">

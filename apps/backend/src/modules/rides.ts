@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { randomBytes } from 'crypto';
 import { z } from 'zod';
 import {
   ACTIVE_RIDE_STATUSES,
@@ -160,6 +161,7 @@ ridesRouter.post(
     });
 
     const pinCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const shareToken = randomBytes(12).toString('hex');
 
     const ride = await prisma.ride.create({
       data: {
@@ -183,6 +185,7 @@ ridesRouter.post(
         durationSeconds: route.durationSeconds,
         comment: body.comment ?? null,
         pinCode,
+        shareToken,
         promoCode: appliedPromo,
         discount,
       },

@@ -220,6 +220,8 @@ model Ride {
   surgeMultiplier Float       @default(1.0)
   // Xavfsizlik: yo'lovchi haydovchiga aytadigan 4 xonali PIN
   pinCode       String?
+  // Safarni ulashish uchun ochiq token (jonli kuzatuv havolasi)
+  shareToken    String?       @unique
   promoCode     String?
   discount      Int           @default(0)
   distanceMeters Int          @default(0)

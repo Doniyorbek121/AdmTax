@@ -80,6 +80,8 @@ export interface Ride {
   durationSeconds: number;
   /** Xavfsizlik PIN — yo'lovchi haydovchiga aytadi */
   pinCode: string | null;
+  /** Safarni ulashish uchun ochiq token */
+  shareToken: string | null;
   promoCode: string | null;
   discount: number;
   comment: string | null;

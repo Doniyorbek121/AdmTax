@@ -29,6 +29,15 @@ export function Active() {
     try { await api.post(`/rides/${ride.id}/rate`, { score }); setRated(true); } catch { /* ignore */ }
   };
 
+  const shareRide = async (token: string) => {
+    const url = `${window.location.origin}/track/${token}`;
+    const text = `Men ADM Taksida ketyapman. Meni kuzatib boring: ${url}`;
+    try {
+      if (navigator.share) await navigator.share({ title: 'ADM Taksi safari', text, url });
+      else { await navigator.clipboard.writeText(url); alert('Havola nusxalandi:\n' + url); }
+    } catch { /* bekor qilindi */ }
+  };
+
   return (
     <div className="phone bg-ink-100">
       <div className="absolute inset-0">
@@ -115,6 +124,14 @@ export function Active() {
             <p className="text-center text-emerald-600 font-medium py-1">
               {rated ? 'Rahmat! Bahoyingiz saqlandi.' : ''}
             </p>
+          )}
+
+          {/* Safarni ulashish (xavfsizlik) */}
+          {ride.shareToken && ['ACCEPTED', 'ARRIVING', 'ARRIVED', 'IN_PROGRESS'].includes(ride.status) && (
+            <button onClick={() => shareRide(ride.shareToken!)}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-ink-900 text-white font-semibold py-3.5 mb-2 active:scale-[.98] transition">
+              🛡️ Safarni ulashish
+            </button>
           )}
 
           {/* Amallar */}

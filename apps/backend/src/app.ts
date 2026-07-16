@@ -13,6 +13,7 @@ import { geoRouter } from './modules/geo';
 import { paymentsRouter } from './modules/payments';
 import { placesRouter } from './modules/places';
 import { promosRouter } from './modules/promos';
+import { publicRouter } from './modules/public';
 
 export function createApp() {
   const app = express();
@@ -37,6 +38,7 @@ export function createApp() {
   app.use(`${api}/uploads`, uploadsRouter);
   app.use(`${api}/places`, placesRouter);
   app.use(`${api}/promos`, promosRouter);
+  app.use(`${api}/public`, publicRouter);
 
   app.use((_req, res) => res.status(404).json({ error: { message: 'Manzil topilmadi', code: 'NOT_FOUND' } }));
   app.use(errorHandler);

@@ -10,13 +10,19 @@ import { Search } from './screens/Search';
 import { Choose } from './screens/Choose';
 import { Active } from './screens/Active';
 import { Wallet } from './screens/Wallet';
+import { PublicTrack } from './screens/PublicTrack';
 
 function App() {
   const { user, ready, loadMe } = useAuth();
   const { screen, loadActive } = useRide();
 
-  useEffect(() => { void initNative(); void loadMe(); }, [loadMe]);
+  // Ochiq safar kuzatuvi (login talab qilmaydi): /track/<token>
+  const trackMatch = window.location.pathname.match(/^\/track\/([a-f0-9]+)/i);
+
+  useEffect(() => { if (trackMatch) return; void initNative(); void loadMe(); }, [loadMe]);
   useEffect(() => { if (user) void loadActive(); }, [user]);
+
+  if (trackMatch) return <PublicTrack token={trackMatch[1]} />;
 
   if (!ready) {
     return (

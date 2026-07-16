@@ -103,6 +103,7 @@ export function toRide(r: RideWithRelations): Ride {
     // PIN umumiy obyektda YUBORILMAYDI (haydovchiga oshkor bo'lmasligi uchun).
     // Yo'lovchi uni alohida /rides/:id/pin endpointidan oladi.
     pinCode: null,
+    shareToken: r.shareToken ?? null,
     promoCode: r.promoCode ?? null,
     discount: r.discount ?? 0,
     comment: r.comment,

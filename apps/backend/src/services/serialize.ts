@@ -30,6 +30,7 @@ export function toUser(u: PrismaUser): User {
     avatarUrl: u.avatarUrl,
     rating: Number(u.rating.toFixed(2)),
     walletBalance: u.walletBalance,
+    language: u.language,
     createdAt: u.createdAt.toISOString(),
   };
 }

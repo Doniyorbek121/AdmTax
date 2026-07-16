@@ -137,3 +137,19 @@ authRouter.get(
     res.json(toUser(user));
   }),
 );
+
+/** Profilni yangilash (ism, til) */
+const updateMeSchema = z.object({
+  name: z.string().min(1).max(60).optional(),
+  language: z.enum(['uz', 'ru', 'en']).optional(),
+});
+authRouter.patch(
+  '/me',
+  authenticate,
+  validate(updateMeSchema),
+  asyncHandler(async (req, res) => {
+    const body = req.body as z.infer<typeof updateMeSchema>;
+    const user = await prisma.user.update({ where: { id: req.user!.id }, data: body });
+    res.json(toUser(user));
+  }),
+);

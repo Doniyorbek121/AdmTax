@@ -4,9 +4,11 @@ import { useRide } from '../store/ride';
 import { api } from '../api/client';
 import { Map } from '../components/Map';
 import { formatSom, RIDE_STATUS_LABEL, VEHICLE_CLASS_LABEL } from '../lib/format';
+import { useT } from '../i18n';
 
 export function Active() {
   const { activeRide: ride, driverLocation, ridePin, cancelRide, reset } = useRide();
+  const t = useT();
   const [rating, setRating] = useState(0);
   const [rated, setRated] = useState(false);
 
@@ -52,7 +54,7 @@ export function Active() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               {isSearching && <span className="w-3 h-3 rounded-full bg-brand-500 relative"><span className="absolute inset-0 rounded-full bg-brand-500 animate-ping" /></span>}
-              <h2 className="text-lg font-bold text-ink-900">{RIDE_STATUS_LABEL[ride.status]}</h2>
+              <h2 className="text-lg font-bold text-ink-900">{t(RIDE_STATUS_LABEL[ride.status])}</h2>
             </div>
             {etaMin != null && (
               <span className="text-sm font-bold text-brand-600 bg-brand-50 px-3 py-1 rounded-full">~{etaMin} daq</span>
@@ -69,8 +71,8 @@ export function Active() {
           {ridePin && ['ACCEPTED', 'ARRIVING', 'ARRIVED'].includes(ride.status) && (
             <div className="flex items-center justify-between bg-ink-900 text-white rounded-2xl px-4 py-3 mb-4">
               <div>
-                <p className="text-xs text-ink-400">Xavfsizlik kodi</p>
-                <p className="text-[11px] text-ink-500">Haydovchiga ayting</p>
+                <p className="text-xs text-ink-400">{t('Xavfsizlik kodi')}</p>
+                <p className="text-[11px] text-ink-500">{t('Haydovchiga ayting')}</p>
               </div>
               <span className="text-2xl font-bold tracking-[0.3em] text-brand-400">{ridePin}</span>
             </div>
@@ -96,7 +98,7 @@ export function Active() {
               </div>
               {d.vehicle && (
                 <a href={`tel:${d.user.phone}`} className="mt-3 flex items-center justify-center gap-2 bg-emerald-500 text-white rounded-xl py-3 font-semibold active:scale-[.98] transition">
-                  📞 Qo'ng'iroq qilish
+                  📞 {t("Qo'ng'iroq qilish")}
                 </a>
               )}
             </div>
@@ -111,7 +113,7 @@ export function Active() {
           {/* Baholash (yakunlangach) */}
           {ride.status === 'COMPLETED' && !rated && (
             <div className="text-center py-2">
-              <p className="text-ink-600 mb-2">Safarni baholang</p>
+              <p className="text-ink-600 mb-2">{t('Safarni baholang')}</p>
               <div className="flex justify-center gap-2 text-3xl">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <button key={s} onClick={() => submitRating(s)} className={s <= rating ? '' : 'grayscale opacity-40'}>⭐</button>
@@ -122,7 +124,7 @@ export function Active() {
 
           {(rated || ride.status === 'CANCELLED' || ride.status === 'NO_DRIVERS') && (
             <p className="text-center text-emerald-600 font-medium py-1">
-              {rated ? 'Rahmat! Bahoyingiz saqlandi.' : ''}
+              {rated ? t('Rahmat! Bahoyingiz saqlandi.') : ''}
             </p>
           )}
 
@@ -130,19 +132,19 @@ export function Active() {
           {ride.shareToken && ['ACCEPTED', 'ARRIVING', 'ARRIVED', 'IN_PROGRESS'].includes(ride.status) && (
             <button onClick={() => shareRide(ride.shareToken!)}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-ink-900 text-white font-semibold py-3.5 mb-2 active:scale-[.98] transition">
-              🛡️ Safarni ulashish
+              🛡️ {t('Safarni ulashish')}
             </button>
           )}
 
           {/* Amallar */}
           {canCancel && (
             <button onClick={cancelRide} className="w-full rounded-2xl border-2 border-rose-200 text-rose-600 font-semibold py-3.5 mt-2 active:bg-rose-50 transition">
-              Bekor qilish
+              {t('Bekor qilish')}
             </button>
           )}
           {isDone && (
             <button onClick={reset} className="w-full rounded-2xl bg-brand-500 text-ink-950 font-bold py-4 mt-2 active:scale-[.98] transition">
-              Yangi safar
+              {t('Yangi safar')}
             </button>
           )}
         </div>

@@ -19,6 +19,7 @@ export interface User {
   avatarUrl: string | null;
   rating: number;
   walletBalance: number;
+  language: string;
   createdAt: string;
 }
 

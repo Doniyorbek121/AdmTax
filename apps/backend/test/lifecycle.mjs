@@ -30,11 +30,15 @@ async function main() {
   console.log('\n═══ TO\'LIQ SAFAR HAYOT SIKLI ═══');
 
   const drv = await login('+998933333331', 'DRIVER');
+  // Onlayn holatni yangilash (lastSeenAt = hozir) — matching uchun
+  await post('/drivers/status', { online: true }, drv.token);
   const prof = (await get('/drivers/me', drv.token)).data;
   prof.status === 'ONLINE' ? ok('haydovchi onlayn') : fail('haydovchi oflayn');
   if (!prof.location) return fail('haydovchi joylashuvi yo\'q (seed ishga tushiring)');
 
-  const pax = await login('+998911111111', 'PASSENGER');
+  // Har safar yangi (toza) yo'lovchi — promo va faol-buyurtma holatidan xoli
+  const paxPhone = '+99890' + Math.floor(1000000 + Math.random() * 8999999);
+  const pax = await login(paxPhone, 'PASSENGER');
   const pickup = { lat: prof.location.lat + 0.003, lng: prof.location.lng + 0.003 };
   const ride = (await post('/rides', {
     pickup: { address: 'Olib ketish', point: pickup },

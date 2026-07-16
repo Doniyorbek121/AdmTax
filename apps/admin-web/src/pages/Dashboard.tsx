@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 import { api } from '../api/client';
-import { Card, PageHeader, Spinner, StatCard } from '../components/ui';
+import { Card, PageHeader, StatCard, StatsSkeleton, Skeleton } from '../components/ui';
 import { IconCar, IconCheck, IconClock, IconMoney, IconRoute, IconUsers } from '../components/icons';
 import { formatNumber, formatSom } from '../lib/format';
 
@@ -41,7 +41,18 @@ export function Dashboard() {
     });
   }, []);
 
-  if (!stats) return <Spinner />;
+  if (!stats) {
+    return (
+      <div>
+        <PageHeader title="Boshqaruv paneli" subtitle="Bugungi ko'rsatkichlar va dinamika" />
+        <StatsSkeleton />
+        <div className="grid lg:grid-cols-3 gap-6 mt-6">
+          <Card className="lg:col-span-2 p-6"><Skeleton className="h-4 w-40 mb-4" /><Skeleton className="h-64 w-full" /></Card>
+          <Card className="p-6"><Skeleton className="h-4 w-32 mb-4" /><Skeleton className="h-64 w-full" /></Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { User } from '@adm/shared';
 import { api } from '../api/client';
-import { Card, PageHeader, Spinner } from '../components/ui';
+import { Card, EmptyState, PageHeader, TableSkeleton } from '../components/ui';
 import { IconSearch } from '../components/icons';
 import { formatDateTime } from '../lib/format';
 
@@ -36,7 +36,7 @@ export function Users() {
       </div>
 
       {loading ? (
-        <Spinner />
+        <TableSkeleton rows={6} cols={4} />
       ) : (
         <Card className="overflow-hidden">
           <table className="w-full text-sm">
@@ -66,7 +66,7 @@ export function Users() {
               ))}
             </tbody>
           </table>
-          {users.length === 0 && <p className="text-center text-ink-400 py-12">Foydalanuvchilar topilmadi</p>}
+          {users.length === 0 && <EmptyState icon="👥" title="Foydalanuvchilar topilmadi" hint="Qidiruvni o'zgartiring" />}
         </Card>
       )}
     </div>

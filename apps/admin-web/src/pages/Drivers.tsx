@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { DriverProfile } from '@adm/shared';
 import { api } from '../api/client';
-import { Badge, Button, Card, PageHeader, Spinner } from '../components/ui';
+import { Badge, Button, Card, EmptyState, PageHeader, TableSkeleton } from '../components/ui';
 import { formatNumber, formatSom, VEHICLE_CLASS_LABEL } from '../lib/format';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api/v1';
@@ -65,7 +65,7 @@ export function Drivers() {
       </div>
 
       {loading ? (
-        <Spinner />
+        <TableSkeleton rows={6} cols={6} />
       ) : (
         <Card className="overflow-hidden">
           <table className="w-full text-sm">
@@ -124,7 +124,7 @@ export function Drivers() {
               ))}
             </tbody>
           </table>
-          {drivers.length === 0 && <p className="text-center text-ink-400 py-12">Haydovchilar topilmadi</p>}
+          {drivers.length === 0 && <EmptyState icon="🚗" title="Haydovchilar topilmadi" hint="Filtrni o'zgartiring yoki keyinroq qayting" />}
         </Card>
       )}
 

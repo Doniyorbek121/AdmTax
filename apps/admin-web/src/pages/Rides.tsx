@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Ride } from '@adm/shared';
 import { api } from '../api/client';
-import { Badge, Card, PageHeader, Spinner } from '../components/ui';
+import { Badge, Card, EmptyState, PageHeader, TableSkeleton } from '../components/ui';
 import {
   formatDateTime,
   formatDistance,
@@ -45,7 +45,7 @@ export function Rides() {
       </div>
 
       {loading ? (
-        <Spinner />
+        <TableSkeleton rows={7} cols={7} />
       ) : (
         <Card className="overflow-hidden">
           <table className="w-full text-sm">
@@ -89,7 +89,7 @@ export function Rides() {
               ))}
             </tbody>
           </table>
-          {rides.length === 0 && <p className="text-center text-ink-400 py-12">Buyurtmalar topilmadi</p>}
+          {rides.length === 0 && <EmptyState icon="🧭" title="Buyurtmalar topilmadi" hint="Bu holat bo'yicha buyurtma yo'q" />}
         </Card>
       )}
     </div>

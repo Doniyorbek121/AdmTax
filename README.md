@@ -23,6 +23,10 @@ Bitta monorepoda **5 ta ilova** va umumiy backend:
 | 📍 Geolokatsiya | Native GPS (Capacitor), reverse geocode | `docs/NATIVE.md` |
 | 💳 To'lov | Payme + Click + hamyon (wallet) | `docs/PAYMENTS.md` |
 | 🧑‍✈️ Haydovchi onboarding | Ro'yxatdan o'tish, hujjat yuklash, moderatsiya | — |
+| 🎁 Promo-kod | Chegirmalar (foiz/summa), limitlar, avtomatik qo'llash | — |
+| 🔐 Xavfsizlik | Safar PIN kodi, safarni ulashish (jonli kuzatuv havolasi) | — |
+| 🚕 Jonli mashinalar | Atrofdagi mashinalar xaritada (yo'nalish, silliq harakat) | — |
+| 🔔 Ovoz/bildirishnoma | Haydovchiga buyurtma tovushi + push | — |
 | 📲 SMS/OTP | Eskiz.uz / Play Mobile / console | `docs/SMS.md` |
 | 📱 Native | Android/iOS (Capacitor) | `docs/NATIVE.md` |
 | 📊 Admin | Statistika, park, buyurtmalar, tariflar, moderatsiya | — |
@@ -85,8 +89,17 @@ npm run dev:driver      # 5176 — haydovchi ilovasi
 
 1. **Haydovchi** (`5176`) — `+998933333331` bilan kiring → avtomatik onlayn.
 2. **Yo'lovchi** (`5175`) — `+998911111111` bilan kiring → manzil tanlang → taksi chaqiring.
-3. Haydovchi ilovasida **buyurtma taklifi** paydo bo'ladi → qabul qiling.
+3. Haydovchi ilovasida **buyurtma taklifi** paydo bo'ladi (ovoz bilan) → qabul qiling.
 4. **Operator** (`5174`) yoki **admin** (`5173`) panelida buyurtmani real vaqtda kuzating.
+
+### Avtomatik integratsion test
+
+Backend ishlab turganda to'liq hayot sikli avtomatik tekshiriladi:
+
+```bash
+cd apps/backend && npm run test:e2e
+# OTP → buyurtma (promo) → PIN → qabul → boshlash → yakunlash → baholash → statistika
+```
 
 ### Namuna hisoblar (seed'dan)
 

@@ -11,6 +11,7 @@ import { Rides } from './pages/Rides';
 import { Fleet } from './pages/Fleet';
 import { Tariffs } from './pages/Tariffs';
 import { Users } from './pages/Users';
+import { Analytics } from './pages/Analytics';
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -43,6 +44,7 @@ function App() {
               <Layout>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
+                  <Route path="/analytics" element={<Analytics />} />
                   <Route path="/fleet" element={<Fleet />} />
                   <Route path="/rides" element={<Rides />} />
                   <Route path="/drivers" element={<Drivers />} />

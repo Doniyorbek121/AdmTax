@@ -71,6 +71,65 @@ adminRouter.get(
   }),
 );
 
+/** Bugungi soatlik safar taqsimoti (24 soat) */
+adminRouter.get(
+  '/stats/hourly',
+  asyncHandler(async (_req, res) => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const rides = await prisma.ride.findMany({
+      where: { createdAt: { gte: start } },
+      select: { createdAt: true },
+    });
+    const hours = Array.from({ length: 24 }, (_, h) => ({ hour: `${h}:00`, rides: 0 }));
+    for (const r of rides) hours[r.createdAt.getHours()].rides++;
+    res.json(hours);
+  }),
+);
+
+/** Eng faol haydovchilar (yakunlangan safarlar bo'yicha) */
+adminRouter.get(
+  '/stats/top-drivers',
+  asyncHandler(async (_req, res) => {
+    const drivers = await prisma.driverProfile.findMany({
+      where: { approval: 'APPROVED' },
+      include: { user: true },
+      orderBy: { totalRides: 'desc' },
+      take: 5,
+    });
+    res.json(
+      drivers.map((d) => ({
+        name: d.user.name ?? 'Nomsiz',
+        totalRides: d.totalRides,
+        rating: Number(d.user.rating.toFixed(1)),
+        balance: d.balance,
+      })),
+    );
+  }),
+);
+
+/** Bekor qilish darajasi va safar taqsimoti (bugun) */
+adminRouter.get(
+  '/stats/breakdown',
+  asyncHandler(async (_req, res) => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const [completed, cancelled, noDrivers, total] = await Promise.all([
+      prisma.ride.count({ where: { status: 'COMPLETED', createdAt: { gte: start } } }),
+      prisma.ride.count({ where: { status: 'CANCELLED', createdAt: { gte: start } } }),
+      prisma.ride.count({ where: { status: 'NO_DRIVERS', createdAt: { gte: start } } }),
+      prisma.ride.count({ where: { createdAt: { gte: start } } }),
+    ]);
+    res.json({
+      completed,
+      cancelled,
+      noDrivers,
+      total,
+      cancelRate: total ? Math.round((cancelled / total) * 100) : 0,
+    });
+  }),
+);
+
 /** Foydalanuvchilar ro'yxati */
 adminRouter.get(
   '/users',

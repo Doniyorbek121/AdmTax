@@ -9,11 +9,13 @@ import {
   IconMoney,
   IconRoute,
   IconTag,
+  IconTrend,
   IconUsers,
 } from './icons';
 
 const nav = [
   { to: '/', label: 'Boshqaruv', icon: IconDashboard, end: true },
+  { to: '/analytics', label: 'Analitika', icon: IconTrend },
   { to: '/fleet', label: 'Jonli park', icon: IconMap },
   { to: '/rides', label: 'Buyurtmalar', icon: IconRoute },
   { to: '/drivers', label: 'Haydovchilar', icon: IconCar },

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDriver } from '../store/driver';
 import { Map } from '../components/Map';
 import { formatSom, VEHICLE_CLASS_LABEL } from '../lib/format';
+import { useT } from '../i18n';
 
 const NEXT_ACTION: Record<string, { action: 'arrived' | 'start' | 'complete'; label: string; color: string }> = {
   ACCEPTED: { action: 'arrived', label: 'Yetib keldim', color: 'bg-blue-500' },
@@ -19,6 +20,7 @@ const STATUS_HINT: Record<string, string> = {
 
 export function Active() {
   const { activeRide: r, location, advanceRide } = useDriver();
+  const t = useT();
   const [pinMode, setPinMode] = useState(false);
   const [pin, setPin] = useState('');
   const [pinErr, setPinErr] = useState('');
@@ -52,7 +54,7 @@ export function Active() {
         <div className="bg-white rounded-t-3xl shadow-2xl p-5 pb-8">
           <div className="w-10 h-1.5 bg-ink-200 rounded-full mx-auto mb-4" />
 
-          <p className="text-center text-ink-500 font-medium mb-4">{STATUS_HINT[r.status]}</p>
+          <p className="text-center text-ink-500 font-medium mb-4">{t(STATUS_HINT[r.status])}</p>
 
           {/* Yo'lovchi */}
           <div className="bg-ink-50 rounded-2xl p-4 mb-4 flex items-center gap-3">
@@ -79,7 +81,7 @@ export function Active() {
               target="_blank" rel="noreferrer"
               className="text-brand-600 font-semibold text-sm"
             >
-              Navigatsiya →
+              {t('Navigatsiya →')}
             </a>
           </div>
 
@@ -91,13 +93,13 @@ export function Active() {
           {next && (
             <button onClick={handleNext}
               className={`w-full rounded-2xl ${next.color} text-white font-bold py-4 text-lg active:scale-[.98] transition`}>
-              {next.label}
+              {t(next.label)}
             </button>
           )}
           {['COMPLETED', 'CANCELLED'].includes(r.status) && (
             <div className="text-center py-2">
               <p className="text-2xl font-bold text-emerald-600">{formatSom(r.finalFare ?? r.estimatedFare)}</p>
-              <p className="text-ink-400 text-sm">Keyingi buyurtmaga tayyorlaning</p>
+              <p className="text-ink-400 text-sm">{t('Keyingi buyurtmaga tayyorlaning')}</p>
             </div>
           )}
         </div>
@@ -107,14 +109,14 @@ export function Active() {
       {pinMode && (
         <div className="absolute inset-0 z-30 bg-black/50 flex items-end" onClick={() => setPinMode(false)}>
           <div className="w-full bg-white rounded-t-3xl p-6 pb-8 sheet" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-ink-900 mb-1">Xavfsizlik kodi</h3>
-            <p className="text-ink-400 text-sm mb-4">Yo'lovchidan 4 xonali kodni so'rang</p>
+            <h3 className="text-lg font-bold text-ink-900 mb-1">{t('Xavfsizlik kodi')}</h3>
+            <p className="text-ink-400 text-sm mb-4">{t("Yo'lovchidan 4 xonali kodni so'rang")}</p>
             <input value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} inputMode="numeric" autoFocus
               className="w-full rounded-2xl border-2 border-ink-200 px-4 py-4 text-3xl text-center tracking-[0.5em] font-bold outline-none focus:border-brand-400" placeholder="0000" />
             {pinErr && <p className="text-rose-600 text-sm text-center mt-2">{pinErr}</p>}
             <button onClick={submitPin} disabled={pin.length !== 4}
               className="w-full rounded-2xl bg-brand-500 text-ink-950 font-bold py-4 text-lg mt-4 active:scale-[.98] transition disabled:opacity-40">
-              Tasdiqlash va boshlash
+              {t('Tasdiqlash va boshlash')}
             </button>
           </div>
         </div>

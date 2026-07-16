@@ -5,10 +5,12 @@ import { useAuth } from '../store/auth';
 import { useDriver } from '../store/driver';
 import { uploadImage } from '../lib/upload';
 import { VEHICLE_CLASS_LABEL } from '../lib/format';
+import { useT } from '../i18n';
 
 const CLASSES: VehicleClass[] = ['ECONOMY', 'COMFORT', 'BUSINESS', 'MINIVAN', 'DELIVERY'] as VehicleClass[];
 
 function PhotoTile({ label, value, onChange }: { label: string; value: string; onChange: (url: string) => void }) {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const pick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -20,9 +22,9 @@ function PhotoTile({ label, value, onChange }: { label: string; value: string; o
     <label className="block">
       <span className="text-sm text-ink-600 font-medium">{label}</span>
       <div className={`mt-1.5 rounded-2xl border-2 border-dashed h-32 grid place-items-center overflow-hidden ${value ? 'border-emerald-400' : 'border-ink-200'}`}>
-        {busy ? <span className="text-ink-400">Yuklanmoqda…</span>
-          : value ? <span className="text-emerald-600 font-semibold">✓ Yuklandi</span>
-          : <span className="text-ink-400 text-sm">📷 Rasm tanlash</span>}
+        {busy ? <span className="text-ink-400">{t('Yuklanmoqda…')}</span>
+          : value ? <span className="text-emerald-600 font-semibold">{t('✓ Yuklandi')}</span>
+          : <span className="text-ink-400 text-sm">{t('📷 Rasm tanlash')}</span>}
         <input type="file" accept="image/*" capture="environment" onChange={pick} className="hidden" />
       </div>
     </label>
@@ -30,6 +32,7 @@ function PhotoTile({ label, value, onChange }: { label: string; value: string; o
 }
 
 export function Registration() {
+  const t = useT();
   const { user, logout } = useAuth();
   const { profile, loadProfile } = useDriver();
   const [name, setName] = useState(user?.name ?? '');
@@ -57,8 +60,8 @@ export function Registration() {
     <div className="phone bg-ink-50">
       <div className="bg-ink-950 text-white p-5 pt-6 flex items-center justify-between shrink-0">
         <div>
-          <h2 className="font-bold text-lg">Ro'yxatdan o'tish</h2>
-          <p className="text-ink-400 text-sm">Haydovchi bo'lish uchun ma'lumot to'ldiring</p>
+          <h2 className="font-bold text-lg">{t("Ro'yxatdan o'tish")}</h2>
+          <p className="text-ink-400 text-sm">{t("Haydovchi bo'lish uchun ma'lumot to'ldiring")}</p>
         </div>
         <button onClick={logout} className="text-ink-400">⎋</button>
       </div>
@@ -71,7 +74,7 @@ export function Registration() {
         )}
 
         <section className="bg-white rounded-2xl p-4 space-y-3">
-          <h3 className="font-bold text-ink-900">Shaxsiy ma'lumot</h3>
+          <h3 className="font-bold text-ink-900">{t("Shaxsiy ma'lumot")}</h3>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="F.I.Sh"
             className="w-full rounded-xl border border-ink-200 px-3.5 py-2.5 text-sm" />
           <input value={license} onChange={(e) => setLicense(e.target.value)} placeholder="Haydovchilik guvohnomasi raqami"
@@ -79,7 +82,7 @@ export function Registration() {
         </section>
 
         <section className="bg-white rounded-2xl p-4 space-y-3">
-          <h3 className="font-bold text-ink-900">Mashina</h3>
+          <h3 className="font-bold text-ink-900">{t('Mashina')}</h3>
           <div className="grid grid-cols-2 gap-3">
             <input value={v.make} onChange={(e) => setV({ ...v, make: e.target.value })} placeholder="Marka (Chevrolet)"
               className="rounded-xl border border-ink-200 px-3.5 py-2.5 text-sm" />
@@ -99,17 +102,17 @@ export function Registration() {
         </section>
 
         <section className="bg-white rounded-2xl p-4 space-y-3">
-          <h3 className="font-bold text-ink-900">Hujjatlar</h3>
-          <PhotoTile label="Haydovchilik guvohnomasi" value={docs.licensePhotoUrl} onChange={(u) => setDocs({ ...docs, licensePhotoUrl: u })} />
-          <PhotoTile label="Texnik pasport" value={docs.techPassportUrl} onChange={(u) => setDocs({ ...docs, techPassportUrl: u })} />
-          <PhotoTile label="Mashina rasmi" value={docs.carPhotoUrl} onChange={(u) => setDocs({ ...docs, carPhotoUrl: u })} />
+          <h3 className="font-bold text-ink-900">{t('Hujjatlar')}</h3>
+          <PhotoTile label={t("Haydovchilik guvohnomasi")} value={docs.licensePhotoUrl} onChange={(u) => setDocs({ ...docs, licensePhotoUrl: u })} />
+          <PhotoTile label={t("Texnik pasport")} value={docs.techPassportUrl} onChange={(u) => setDocs({ ...docs, techPassportUrl: u })} />
+          <PhotoTile label={t("Mashina rasmi")} value={docs.carPhotoUrl} onChange={(u) => setDocs({ ...docs, carPhotoUrl: u })} />
         </section>
 
         {err && <p className="text-rose-600 text-sm text-center">{err}</p>}
 
         <button onClick={submit} disabled={!valid || busy}
           className="w-full rounded-2xl bg-brand-500 text-ink-950 font-bold py-4 text-lg active:scale-[.98] transition disabled:opacity-40">
-          {busy ? 'Yuborilmoqda…' : 'Moderatsiyaga yuborish'}
+          {busy ? t('Yuborilmoqda…') : t('Moderatsiyaga yuborish')}
         </button>
       </div>
     </div>

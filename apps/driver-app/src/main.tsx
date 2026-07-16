@@ -4,6 +4,7 @@ import './index.css';
 import { initNative } from './lib/native';
 import { useAuth } from './store/auth';
 import { useDriver } from './store/driver';
+import { useLang, type Lang } from './i18n';
 import { Auth } from './screens/Auth';
 import { Home } from './screens/Home';
 import { Offer } from './screens/Offer';
@@ -13,9 +14,11 @@ import { Registration } from './screens/Registration';
 function App() {
   const { user, ready, loadMe } = useAuth();
   const { activeRide, profile, loadProfile } = useDriver();
+  const setLang = useLang((s) => s.setLang);
 
   useEffect(() => { void initNative(); void loadMe(); }, [loadMe]);
   useEffect(() => { if (user) void loadProfile(); }, [user]);
+  useEffect(() => { if (user?.language && !localStorage.getItem('drv_lang')) setLang(user.language as Lang); }, [user, setLang]);
 
   if (!ready) return <div className="phone bg-ink-950 grid place-items-center text-4xl">🚕</div>;
   if (!user) return <Auth />;
